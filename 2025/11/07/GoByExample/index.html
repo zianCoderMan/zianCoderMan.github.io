@@ -1,0 +1,698 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="zianCoderMan">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="1.Hello World1234567package mainimport &quot;fmt&quot;func main() &#123;	fmt.Println(&quot;Hello World&quot;)&#125;  2.值123456789101112131415package mainimport &quot;fmt&quot;func main() &#123;    &#x2F;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Go语言基础学习">
+<meta property="og:url" content="https://ziancoderman.github.io/2025/11/07/GoByExample/index.html">
+<meta property="og:site_name" content="zianCoderMan">
+<meta property="og:description" content="1.Hello World1234567package mainimport &quot;fmt&quot;func main() &#123;	fmt.Println(&quot;Hello World&quot;)&#125;  2.值123456789101112131415package mainimport &quot;fmt&quot;func main() &#123;    &#x2F;">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-11-07T01:02:02.000Z">
+<meta property="article:modified_time" content="2025-11-07T01:40:32.540Z">
+<meta property="article:author" content="zianCoderMan">
+<meta property="article:tag" content="Go学习">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>Go语言基础学习 - zianCoderMan</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"ziancoderman.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>zianCoderMan&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Go语言基础学习"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-11-07 09:02" pubdate>
+          2025年11月7日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.4k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          20 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Go语言基础学习</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <span id="more"></span>
+
+<h2 id="1-Hello-World"><a href="#1-Hello-World" class="headerlink" title="1.Hello World"></a>1.Hello World</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> main<br><br><span class="hljs-keyword">import</span> <span class="hljs-string">&quot;fmt&quot;</span><br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>	fmt.Println(<span class="hljs-string">&quot;Hello World&quot;</span>)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="2-值"><a href="#2-值" class="headerlink" title="2.值"></a>2.值</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> main<br><br><span class="hljs-keyword">import</span> <span class="hljs-string">&quot;fmt&quot;</span><br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>    <span class="hljs-comment">// 字符串可以通过+连接</span><br>    fmt.Println(<span class="hljs-string">&quot;go&quot;</span> + <span class="hljs-string">&quot;lang&quot;</span>)<br>    <span class="hljs-comment">// 整数和浮点数</span><br>    fmt.Println(<span class="hljs-string">&quot;1+1=&quot;</span>, <span class="hljs-number">1</span>+<span class="hljs-number">1</span>)<br>    fmt.Println(<span class="hljs-string">&quot;7.0/3.0=&quot;</span>, <span class="hljs-number">7.0</span>/<span class="hljs-number">3.0</span>)<br>    <span class="hljs-comment">// 布尔型 以及常见的布尔操作</span><br>    fmt.Println(<span class="hljs-literal">true</span> &amp;&amp; <span class="hljs-literal">false</span>)<br>    fmt.Println(<span class="hljs-literal">true</span> || <span class="hljs-literal">false</span>)<br>    fmt.Println(!<span class="hljs-literal">true</span>)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="3-变量"><a href="#3-变量" class="headerlink" title="3.变量"></a>3.变量</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> main<br><br><span class="hljs-keyword">import</span> <span class="hljs-string">&quot;fmt&quot;</span><br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>	<span class="hljs-comment">// var 变量名 类型 = 初始值</span><br>	<span class="hljs-comment">// Go 会自动推断已经有初始值的变量的类型。</span><br>	<span class="hljs-keyword">var</span> a = <span class="hljs-string">&quot;initial&quot;</span><br>	fmt.Println(a)<br><br>	<span class="hljs-comment">// 标准声明，显式指定类型 int，同时声明多个变量（b 和 c），用逗号分隔</span><br>	<span class="hljs-keyword">var</span> b, c <span class="hljs-type">int</span> = <span class="hljs-number">1</span>, <span class="hljs-number">2</span><br>	fmt.Println(b, c)<br><br>	<span class="hljs-comment">// 标准声明 + 类型推导</span><br>	<span class="hljs-keyword">var</span> d = <span class="hljs-literal">true</span><br>	fmt.Println(d)<br><br>	<span class="hljs-comment">/**</span><br><span class="hljs-comment">	当变量声明时不赋值，Go 会自动给它赋 “零值”（保证变量永远有有效值，不会像 Java 那样出现 “未初始化变量” 编译错误）</span><br><span class="hljs-comment">	不同类型的零值：</span><br><span class="hljs-comment">		int 是 0</span><br><span class="hljs-comment">		string 是 &quot;&quot;（空字符串）</span><br><span class="hljs-comment">		bool 是 false</span><br><span class="hljs-comment">		指针是 nil（类似 Java 的 null 但更安全）</span><br><span class="hljs-comment">	*/</span><br>	<span class="hljs-keyword">var</span> e <span class="hljs-type">int</span><br>	fmt.Println(e)<br><br>	<span class="hljs-comment">// 变量名 := 初始值（只能在函数内使用，语法更简洁）</span><br>	<span class="hljs-comment">/**</span><br><span class="hljs-comment">	核心规则：</span><br><span class="hljs-comment">		用 := 代替 var + 类型，同时完成 “声明 + 赋值 + 类型推导”</span><br><span class="hljs-comment">		只能在 函数内部 使用（全局变量不能用这种写法，因为全局变量必须用 var 声明）</span><br><span class="hljs-comment">		变量名必须是 “新变量”（不能重复声明已存在的变量，除非是多变量声明时部分重名且有新变量）</span><br><span class="hljs-comment">	*/</span><br>	f := <span class="hljs-string">&quot;short&quot;</span>    <span class="hljs-comment">//等价于 var f string = &quot;short&quot;</span><br>	fmt.Println(f)<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<h2 id="4-常量"><a href="#4-常量" class="headerlink" title="4.常量"></a>4.常量</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> main<br><br><span class="hljs-keyword">import</span> (<br>    <span class="hljs-string">&quot;fmt&quot;</span><br>    <span class="hljs-string">&quot;math&quot;</span><br>)<br><br><span class="hljs-comment">/*</span><br><span class="hljs-comment">*</span><br><span class="hljs-comment">    Go 支持字符、字符串、布尔和数值 常量 。</span><br><span class="hljs-comment">    const 用于声明一个常量。</span><br><span class="hljs-comment">    语法：const 常量名 类型 = 初始值（标准常量声明，显式指定类型）</span><br><span class="hljs-comment">    常量必须声明时赋值（不能像变量那样 var a int 留到后面赋值），所以没有 “零值初始化”。</span><br><span class="hljs-comment">    Go 常量的值必须在编译时就能计算出来（不能用运行时才能确定的值，比如 time.Now().Unix()、用户输入）</span><br><span class="hljs-comment">*/</span><br><br><span class="hljs-comment">// 作用域：全局常量（在 main 函数外声明，整个包可见）。</span><br><span class="hljs-keyword">const</span> s <span class="hljs-type">string</span> = <span class="hljs-string">&quot;constant&quot;</span><br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>    fmt.Println(s)<br>    <span class="hljs-comment">// 函数内常量  作用域：局部常量（在 main 函数内声明，仅函数内可见）；</span><br>    <span class="hljs-comment">// 初始值 500000000 是整数字面量，编译器推导为 “无类型整数常量”（不是 int，也不是 int64，是 Go 特有的 “无类型常量”）；</span><br>    <span class="hljs-keyword">const</span> n = <span class="hljs-number">500000000</span><br><br>    <span class="hljs-comment">// 常量支持编译期运算（运算结果必须还是编译期可确定的）</span><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">    反例</span><br><span class="hljs-comment">       var x = 500000000 // 变量（不是 const）</span><br><span class="hljs-comment">       const d = 3e20 / x // 编译报错！</span><br><span class="hljs-comment">       这里会报错，因为 x 是 var 声明的变量 —— 变量的本质是 “运行时在内存中分配的存储空间”，哪怕你给它赋了固定值 500000000，</span><br><span class="hljs-comment">       编译器也不能把它当作 “编译期常量” 来运算（理论上，变量的值可能在运行时被修改，比如 x = 100，编译器无法提前预知）</span><br><span class="hljs-comment">    */</span><br>    <span class="hljs-keyword">const</span> d = <span class="hljs-number">3e20</span> / n<br>    fmt.Println(d)<br><br>    <span class="hljs-comment">// d 是无类型浮点数常量（6e11），通过 int64(d) 显式转换为 int64 类型</span><br>    fmt.Println(<span class="hljs-type">int64</span>(d))<br><br>    fmt.Println(math.Sin(n))<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="补充1：Go-语言的自动类型转换（隐式类型转换）"><a href="#补充1：Go-语言的自动类型转换（隐式类型转换）" class="headerlink" title="补充1：Go 语言的自动类型转换（隐式类型转换）"></a>补充1：Go 语言的<strong>自动类型转换（隐式类型转换）</strong></h2><p>Go 语言的 <strong>自动类型转换（隐式类型转换）</strong> 规则非常严格，核心原则是：<strong>“安全第一，不允许隐式窄化转换，仅支持有限场景的隐式兼容转换”</strong>—— 这和 Java 宽松的自动类型转换（比如 <code>int</code> 能隐式转 <code>long</code>、<code>float</code> 能隐式转 <code>double</code>）有很大差异！</p>
+<p><strong>1、先明确核心前提</strong></p>
+<p>Go 是 <strong>静态强类型语言</strong>：</p>
+<ul>
+<li>静态：变量类型编译时确定，不能动态改变；</li>
+<li>强类型：不同类型之间的转换必须显式声明（除非满足 Go 允许的隐式转换规则），禁止 “悄悄转换” 导致的潜在问题（比如精度丢失、溢出）。</li>
+</ul>
+<p>对比 Java：Java 是 “静态弱类型倾向”，允许较多隐式转换（比如 <code>int a = 10; long b = a;</code> 合法），而 Go 为了安全，大幅限制了隐式转换的场景。</p>
+<p><strong>2、Go 支持的 3 种自动类型转换（隐式转换）</strong></p>
+<p>只有以下场景，编译器会自动帮你转换类型，其他所有情况都必须手动转换：</p>
+<p><strong>（1） 无类型常量 → 兼容的显式类型（最常用场景）</strong></p>
+<p>这是之前代码中 <code>math.Sin(n)</code> 和 <code>int64(d)</code> 背后的逻辑！</p>
+<ul>
+<li><p>无类型常量（比如 <code>const n = 500000000</code>、<code>3e20</code>）是 Go 特有的 “编译期未绑定类型” 的常量，编译器会根据使用场景，自动将其转换为兼容的显式类型（只要不溢出）。</p>
+</li>
+<li><p>示例：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">const</span> n = <span class="hljs-number">500000000</span> <span class="hljs-comment">// 无类型整数常量</span><br><span class="hljs-keyword">const</span> d = <span class="hljs-number">3e20</span> / n  <span class="hljs-comment">// 无类型浮点数常量（6e11）</span><br><br><span class="hljs-comment">// 1. 无类型整数 → float64（math.Sin 参数要求 float64）</span><br>fmt.Println(math.Sin(n)) <span class="hljs-comment">// 编译器自动转 float64(n)，合法</span><br><br><span class="hljs-comment">// 2. 无类型浮点数 → int64（显式转换，因为涉及“浮点数→整数”， “浮点数→整数” 是 “不安全转换”，需手动确认）</span><br>fmt.Println(<span class="hljs-type">int64</span>(d)) <span class="hljs-comment">// 必须手动写 int64(d)，但 d 是无类型常量，转换时编译期检查溢出</span><br><br><span class="hljs-comment">// 3. 无类型常量 → 其他兼容类型（自动转换）</span><br><span class="hljs-keyword">var</span> x <span class="hljs-type">int32</span> = n     <span class="hljs-comment">// 无类型整数 → int32（n=5e8 &lt; int32 最大值 2e9，兼容）</span><br><span class="hljs-keyword">var</span> y <span class="hljs-type">float32</span> = d   <span class="hljs-comment">// 无类型浮点数 → float32（d=6e11 &lt; float32 最大值 ~3e38，兼容）</span><br></code></pre></td></tr></table></figure>
+</li>
+<li><p>关键：无类型常量的隐式转换，本质是 “编译期类型适配”，且会检查溢出（比如 <code>const m = 3e9; var x int32 = m</code> 会编译报错，因为 3e9 超出 int32 范围）。</p>
+</li>
+</ul>
+<p><strong>（2）同类型的别名类型 → 原类型（隐式互转）</strong></p>
+<p>Go 中可以用 <code>type</code> 声明类型别名（比如 <code>type MyInt int</code>），别名类型和原类型属于 “同一底层类型”，支持隐式互转：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">type</span> MyInt <span class="hljs-type">int</span> <span class="hljs-comment">// MyInt 是 int 的别名（底层类型相同）</span><br><span class="hljs-keyword">var</span> a <span class="hljs-type">int</span> = <span class="hljs-number">10</span><br><span class="hljs-keyword">var</span> b MyInt = a <span class="hljs-comment">// 自动转换：int → MyInt（合法）</span><br><span class="hljs-keyword">var</span> c <span class="hljs-type">int</span> = b   <span class="hljs-comment">// 自动转换：MyInt → int（合法）</span><br>fmt.Println(a, b, c) <span class="hljs-comment">// 10 10 10</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>注意：如果是 “自定义类型”（不是别名，比如 <code>type MyInt struct{ val int }</code>），则不支持隐式转换（哪怕底层结构相似）。</li>
+</ul>
+<p><strong>（3）接口类型的隐式实现与赋值（核心场景）</strong></p>
+<p>这是 Go 接口的 “隐式实现” 特性，本质也是一种隐式类型转换：</p>
+<ul>
+<li><p>只要一个类型（结构体 &#x2F; 基本类型）实现了某个接口的所有方法，就会自动成为该接口类型，可隐式赋值给接口变量。</p>
+</li>
+<li><p>示例：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">type</span> Logger <span class="hljs-keyword">interface</span> &#123; Log() &#125;<br><span class="hljs-keyword">type</span> ConsoleLogger <span class="hljs-keyword">struct</span>&#123;&#125;<br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(c ConsoleLogger)</span></span> Log() &#123; fmt.Println(<span class="hljs-string">&quot;log&quot;</span>) &#125; <span class="hljs-comment">// 实现 Logger 接口</span><br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>    <span class="hljs-keyword">var</span> logger Logger<br>    logger = ConsoleLogger&#123;&#125; <span class="hljs-comment">// 隐式转换：ConsoleLogger → Logger（合法，无需显式声明）</span><br>    logger.Log()<br>&#125;<br></code></pre></td></tr></table></figure>
+</li>
+<li><p>对比 Java：Java 必须显式写 <code>class ConsoleLogger implements Logger</code>，而 Go 支持隐式转换，更灵活。</p>
+</li>
+</ul>
+<p><strong>3、Go 不支持的隐式转换（必须手动转换）</strong></p>
+<p>这是最容易踩坑的地方！以下场景，哪怕类型 “看起来兼容”，也<strong>不允许自动转换</strong>，必须用 <code>类型(变量)</code> 手动转换：</p>
+<p><strong>（1） 不同数值类型之间（除了无类型常量）</strong></p>
+<ul>
+<li><p>示例（编译报错）：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">var</span> a <span class="hljs-type">int</span> = <span class="hljs-number">10</span><br><span class="hljs-keyword">var</span> b <span class="hljs-type">int64</span> = a <span class="hljs-comment">// 报错：cannot use a (type int) as type int64 in assignment</span><br><span class="hljs-keyword">var</span> c <span class="hljs-type">float64</span> = a <span class="hljs-comment">// 报错：cannot use a (type int) as type float64 in assignment</span><br><br><span class="hljs-keyword">var</span> d <span class="hljs-type">float32</span> = <span class="hljs-number">3.14</span><br><span class="hljs-keyword">var</span> e <span class="hljs-type">float64</span> = d <span class="hljs-comment">// 报错：cannot use d (type float32) as type float64 in assignment</span><br></code></pre></td></tr></table></figure>
+</li>
+<li><p>正确做法（手动转换）：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">var</span> a <span class="hljs-type">int</span> = <span class="hljs-number">10</span><br><span class="hljs-keyword">var</span> b <span class="hljs-type">int64</span> = <span class="hljs-type">int64</span>(a) <span class="hljs-comment">// 手动转 int64</span><br><span class="hljs-keyword">var</span> c <span class="hljs-type">float64</span> = <span class="hljs-type">float64</span>(a) <span class="hljs-comment">// 手动转 float64</span><br><br><span class="hljs-keyword">var</span> d <span class="hljs-type">float32</span> = <span class="hljs-number">3.14</span><br><span class="hljs-keyword">var</span> e <span class="hljs-type">float64</span> = <span class="hljs-type">float64</span>(d) <span class="hljs-comment">// 手动转 float64</span><br></code></pre></td></tr></table></figure>
+</li>
+<li><p>对比 Java：Java 中 <code>int a = 10; long b = a;</code> 是合法的（隐式拓宽转换），但 Go 禁止 —— 因为 Go 认为 “不同数值类型是完全不同的类型”，哪怕范围兼容，也需要开发者显式确认（避免无意识的精度丢失）。</p>
+</li>
+</ul>
+<p><strong>（2） 字符串与数值类型之间</strong></p>
+<ul>
+<li><p>示例（编译报错）：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">var</span> s <span class="hljs-type">string</span> = <span class="hljs-string">&quot;100&quot;</span><br><span class="hljs-keyword">var</span> a <span class="hljs-type">int</span> = s <span class="hljs-comment">// 报错：cannot use s (type string) as type int in assignment</span><br><br><span class="hljs-keyword">var</span> b <span class="hljs-type">int</span> = <span class="hljs-number">200</span><br><span class="hljs-keyword">var</span> t <span class="hljs-type">string</span> = b <span class="hljs-comment">// 报错：cannot use b (type int) as type string in assignment</span><br></code></pre></td></tr></table></figure>
+</li>
+<li><p>正确做法（用标准库手动转换）：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">import</span> <span class="hljs-string">&quot;strconv&quot;</span><br><br><span class="hljs-keyword">var</span> s <span class="hljs-type">string</span> = <span class="hljs-string">&quot;100&quot;</span><br>a, _ := strconv.Atoi(s) <span class="hljs-comment">// string → int（Atoi = ASCII to int）</span><br><br><span class="hljs-keyword">var</span> b <span class="hljs-type">int</span> = <span class="hljs-number">200</span><br>t := strconv.Itoa(b) <span class="hljs-comment">// int → string（Itoa = int to ASCII）</span><br></code></pre></td></tr></table></figure>
+</li>
+<li><p>原因：字符串和数值的存储方式完全不同（字符串是字节序列，数值是二进制编码），不存在 “安全的隐式转换”，必须通过 <code>strconv</code> 库处理（还能处理错误，比如字符串不是合法数字的情况）。</p>
+</li>
+</ul>
+<p><strong>（3）不同底层类型的自定义类型之间</strong></p>
+<ul>
+<li><p>示例（编译报错）：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">type</span> MyInt <span class="hljs-type">int</span><br><span class="hljs-keyword">type</span> YourInt <span class="hljs-type">int</span><br><br><span class="hljs-keyword">var</span> a MyInt = <span class="hljs-number">10</span><br><span class="hljs-keyword">var</span> b YourInt = a <span class="hljs-comment">// 报错：cannot use a (type MyInt) as type YourInt in assignment</span><br></code></pre></td></tr></table></figure>
+</li>
+<li><p>正确做法（手动转换）：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">var</span> a MyInt = <span class="hljs-number">10</span><br><span class="hljs-keyword">var</span> b YourInt = YourInt(a) <span class="hljs-comment">// 手动转 YourInt（先转 int，再转 YourInt）</span><br></code></pre></td></tr></table></figure>
+</li>
+<li><p>原因：<code>MyInt</code> 和 <code>YourInt</code> 虽然底层都是 <code>int</code>，但在 Go 中是 “完全独立的类型”（设计目的是区分不同语义，比如 <code>MyInt</code> 代表用户 ID，<code>YourInt</code> 代表订单号），禁止隐式转换避免混用。</p>
+</li>
+</ul>
+<p><strong>4、手动类型转换的语法与注意事项</strong></p>
+<p>当不满足隐式转换条件时，必须用 <strong><code>目标类型(源变量)</code></strong> 手动转换（注意：不是 Java 的 <code>(目标类型)源变量</code>）：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// 语法格式</span><br>源变量 := 源类型(值)<br>目标变量 := 目标类型(源变量)<br></code></pre></td></tr></table></figure>
+
+<p><strong>注意事项：</strong></p>
+<ol>
+<li><p>转换必须 “安全”（编译期检查基本安全，运行时可能有风险）：</p>
+<ul>
+<li>编译期安全检查：比如 <code>var x int32 = 3e9; var y int = int(x)</code> 会编译报错（3e9 超出 int32 范围）；</li>
+<li>运行时风险：比如 <code>var f float64 = 3.99; var i int = int(f)</code> 会直接截断小数（结果是 3，不会四舍五入），需手动处理精度。</li>
+</ul>
+</li>
+<li><p>接口类型不能直接转换为具体类型（除非确定实现了该类型）：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">type</span> Logger <span class="hljs-keyword">interface</span> &#123; Log() &#125;<br><span class="hljs-keyword">type</span> ConsoleLogger <span class="hljs-keyword">struct</span>&#123;&#125;<br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(c ConsoleLogger)</span></span> Log() &#123;&#125;<br><br><span class="hljs-keyword">var</span> logger Logger = ConsoleLogger&#123;&#125;<br><span class="hljs-comment">// 错误：cannot convert logger (type Logger) to type ConsoleLogger: need type assertion</span><br><span class="hljs-comment">// var cl ConsoleLogger = ConsoleLogger(logger)</span><br><br><span class="hljs-comment">// 正确：类型断言（确认 logger 是 ConsoleLogger 类型）</span><br>cl, ok := logger.(ConsoleLogger)<br><span class="hljs-keyword">if</span> ok &#123;<br>    cl.Log()<br>&#125;<br></code></pre></td></tr></table></figure></li>
+</ol>
+<p>对比 Java ：Java 是 “能隐转就隐转，方便优先”，Go 是 “能不隐转就不隐转，安全优先”。这种设计让 Go 代码更严谨，减少了因类型转换导致的隐藏 Bug。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Go/" class="category-chain-item">Go</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Go%E5%AD%A6%E4%B9%A0/" class="print-no-link">#Go学习</a>
+      
+    </div>
+  
+</div>
+
+
+              
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2025/11/06/11-%E7%9B%9B%E6%9C%80%E5%A4%9A%E6%B0%B4%E7%9A%84%E5%AE%B9%E5%99%A8/" title="11. 盛最多水的容器">
+                        <span class="hidden-mobile">11. 盛最多水的容器</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       基于 <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a>、 <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
