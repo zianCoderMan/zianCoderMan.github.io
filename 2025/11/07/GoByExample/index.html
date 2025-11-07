@@ -27,7 +27,7 @@
 <meta property="og:description" content="本文根据《Go by Example》进行学习，参考资料出自https:&#x2F;&#x2F;gobyexample-cn.github.io&#x2F;">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2025-11-07T01:02:02.000Z">
-<meta property="article:modified_time" content="2025-11-07T07:51:21.068Z">
+<meta property="article:modified_time" content="2025-11-07T08:18:03.388Z">
 <meta property="article:author" content="zianCoderMan">
 <meta property="article:tag" content="Go学习">
 <meta name="twitter:card" content="summary_large_image">
@@ -223,7 +223,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          13k 字
+          14k 字
         
       </span>
     
@@ -234,7 +234,7 @@
         
         
         
-          106 分钟
+          113 分钟
         
       </span>
     
@@ -607,6 +607,36 @@
 <p><strong>（3）闭包实例独立</strong></p>
 <p>不同闭包实例捕获的变量是独立的，修改一个不会影响另一个（如示例中 <code>nextInt</code> 和 <code>nextInts</code>）。</p>
 <h2 id="16-递归"><a href="#16-递归" class="headerlink" title="16.递归"></a>16.递归</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> main<br><br><span class="hljs-keyword">import</span> <span class="hljs-string">&quot;fmt&quot;</span><br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">fact</span><span class="hljs-params">(n <span class="hljs-type">int</span>)</span></span> <span class="hljs-type">int</span> &#123;<br>	<span class="hljs-keyword">if</span> n == <span class="hljs-number">0</span> &#123;<br>		<span class="hljs-keyword">return</span> <span class="hljs-number">1</span><br>	&#125;<br>	<span class="hljs-keyword">return</span> n * fact(n<span class="hljs-number">-1</span>)<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>	fmt.Println(fact(<span class="hljs-number">7</span>))<br><br>	<span class="hljs-comment">/**</span><br><span class="hljs-comment">	此处不能fib := func(n int) int，理由：</span><br><span class="hljs-comment">		编译器看到 fib := 时，知道要 “声明一个叫 fib 的变量，并给它赋值右边的匿名函数”；</span><br><span class="hljs-comment">		接着编译器开始解析右边的匿名函数体，发现里面有 fib(n-1)—— 此时 fib 还没完成声明（因为 := 是 “声明 + 赋值” 同时进行，现在还在解析赋值的内容，声明还没结束）；</span><br><span class="hljs-comment">		编译器找不到 fib 的定义（它还没被正式声明），就会报错：undefined: fib（未定义的变量 fib）。</span><br><span class="hljs-comment">	 */</span><br>	<span class="hljs-keyword">var</span> fib <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(n <span class="hljs-type">int</span>)</span></span> <span class="hljs-type">int</span><br><br>	fib = <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(n <span class="hljs-type">int</span>)</span></span> <span class="hljs-type">int</span> &#123;<br>		<span class="hljs-keyword">if</span> n &lt; <span class="hljs-number">2</span> &#123;<br>			<span class="hljs-keyword">return</span> n<br>		&#125;<br>		<span class="hljs-keyword">return</span> fib(n<span class="hljs-number">-1</span>) + fib(n<span class="hljs-number">-2</span>)<br>	&#125;<br><br>	fmt.Println(fib(<span class="hljs-number">7</span>))<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<h2 id="17-指针"><a href="#17-指针" class="headerlink" title="17.指针"></a>17.指针</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> main<br><br><span class="hljs-keyword">import</span> <span class="hljs-string">&quot;fmt&quot;</span><br><br><span class="hljs-comment">/**</span><br><span class="hljs-comment">指针的核心概念</span><br><span class="hljs-comment">    变量的值：变量存储的具体数据（比如 i := 1 中，i 的值是 1）；</span><br><span class="hljs-comment">    变量的内存地址：变量在计算机内存中的 “位置编号”（用 &amp;变量名 获取，比如 &amp;i 就是 i 的地址）；</span><br><span class="hljs-comment">    指针变量：存储 “内存地址” 的变量（比如 iptr *int 中，iptr 是指针变量，它的值是某个 int 变量的地址）；</span><br><span class="hljs-comment">    解引用：通过指针变量的 “内存地址”，找到并操作原变量（用 *指针变量名 实现，比如 *iptr = 0 就是通过 iptr 指向的地址，把原变量的值改成 0）。</span><br><span class="hljs-comment">*/</span><br><br><span class="hljs-comment">// 接收 int 类型参数（值传递）</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">zeroval</span><span class="hljs-params">(ival <span class="hljs-type">int</span>)</span></span> &#123;<br>    ival = <span class="hljs-number">0</span> <span class="hljs-comment">// 修改的是参数 ival 的值，和原变量 i 无关</span><br>&#125;<br><br><span class="hljs-comment">// 接收 *int 类型参数（指针传递，即接收一个 int 变量的地址）</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">zeroptr</span><span class="hljs-params">(iptr *<span class="hljs-type">int</span>)</span></span> &#123;<br>    *iptr = <span class="hljs-number">0</span> <span class="hljs-comment">// 解引用：通过地址找到原变量，修改原变量的值</span><br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>    i := <span class="hljs-number">1</span><br>    fmt.Println(<span class="hljs-string">&quot;initial:&quot;</span>, i)<br><br>    zeroval(i)<br>    fmt.Println(<span class="hljs-string">&quot;zeroval:&quot;</span>, i)<br><br>    <span class="hljs-comment">// &amp;i 是变量 i 的内存地址</span><br>    zeroptr(&amp;i)<br>    fmt.Println(<span class="hljs-string">&quot;zeroptr:&quot;</span>, i)<br><br>    fmt.Println(<span class="hljs-string">&quot;pointer:&quot;</span>, &amp;i) <span class="hljs-comment">//打印 i 的内存地址（比如 0xc0000a6058）</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="补充17：指针的常见使用场景与注意事项"><a href="#补充17：指针的常见使用场景与注意事项" class="headerlink" title="补充17：指针的常见使用场景与注意事项"></a>补充17：指针的常见使用场景与注意事项</h2><p><strong>1.指针的常见使用场景</strong></p>
+<ul>
+<li><strong>跨函数修改变量</strong>：比如你想在函数内修改主函数的变量（如示例），避免用全局变量；</li>
+<li><strong>传递大数据类型</strong>：如果变量是大结构体（比如包含 100 个字段），值传递会拷贝整个结构体（开销大），指针传递只拷贝地址（开销小）；</li>
+<li><strong>表示 “空值”</strong>：指针变量可以赋值为 <code>nil</code>（表示 “没有指向任何变量”），而普通值类型（如 <code>int</code>）不能直接表示 “空”（<code>int</code> 的默认值是 <code>0</code>，但 <code>0</code> 是有效值）。</li>
+</ul>
+<p>示例（结构体指针传递）：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">type</span> Person <span class="hljs-keyword">struct</span> &#123;<br>    Name <span class="hljs-type">string</span><br>    Age  <span class="hljs-type">int</span><br>&#125;<br><br><span class="hljs-comment">// 指针传递：修改原结构体</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">updateAge</span><span class="hljs-params">(p *Person)</span></span> &#123;<br>    p.Age = <span class="hljs-number">30</span> <span class="hljs-comment">// 解引用，直接修改原结构体的 Age 字段</span><br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>    p := Person&#123;Name: <span class="hljs-string">&quot;Alice&quot;</span>, Age: <span class="hljs-number">25</span>&#125;<br>    updateAge(&amp;p) <span class="hljs-comment">// 传地址</span><br>    fmt.Println(p.Age) <span class="hljs-comment">// 输出 30（原结构体被修改）</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>2.指针的注意事项</strong></p>
+<p><strong>（1）不能解引用 <code>nil</code> 指针</strong></p>
+<p>如果指针变量没指向任何地址（值为 <code>nil</code>），解引用会导致程序崩溃：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">var</span> ptr *<span class="hljs-type">int</span> <span class="hljs-comment">// ptr 是 nil 指针（没指向任何 int 变量）</span><br><span class="hljs-comment">// *ptr = 0 // 编译不报错，但运行时崩溃：panic: runtime error: invalid memory address or nil pointer dereference</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>（2）指针变量的类型要匹配</strong></p>
+<p><code>*int</code> 指针只能指向 <code>int</code> 变量，<code>*string</code> 只能指向 <code>string</code> 变量，不能混用</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">var</span> i <span class="hljs-type">int</span> = <span class="hljs-number">1</span><br><span class="hljs-keyword">var</span> s <span class="hljs-type">string</span> = <span class="hljs-string">&quot;hello&quot;</span><br><span class="hljs-comment">// var ptr *int = &amp;s // 编译报错：cannot use &amp;s (type *string) as type *int in assignment</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>（3）地址是动态的</strong></p>
+<p>变量的内存地址由操作系统分配，每次运行程序可能不同，不用关心具体数值，只需要知道它是 “唯一标识”。</p>
+<p><strong>总结：指针的核心用法</strong></p>
+<p>指针的本质是 “内存地址”，核心作用是 <strong>“间接访问和修改原变量”</strong>：</p>
+<ol>
+<li>取地址：<code>&amp;变量名</code> → 得到变量的内存地址（给指针变量赋值）；</li>
+<li>指针变量声明：<code>var 指针变量名 *类型</code> → 比如 <code>var iptr *int</code>；</li>
+<li>解引用：<code>*指针变量名</code> → 通过地址找到原变量，修改或访问它的值。</li>
+</ol>
 
                 
               </div>
