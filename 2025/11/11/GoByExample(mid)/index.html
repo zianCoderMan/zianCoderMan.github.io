@@ -27,7 +27,7 @@
 <meta property="og:description" content="本文根据《Go by Example》进行学习，参考资料出自https:&#x2F;&#x2F;gobyexample-cn.github.io&#x2F; 上篇包括Go语言基础部分，从Hello World到错误处理；中篇包括协程与通道；下篇包括各种工具类的使用。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2025-11-11T02:22:00.000Z">
-<meta property="article:modified_time" content="2025-11-11T08:26:01.148Z">
+<meta property="article:modified_time" content="2025-11-12T01:25:29.778Z">
 <meta property="article:author" content="zianCoderMan">
 <meta property="article:tag" content="Go学习">
 <meta name="twitter:card" content="summary_large_image">
@@ -223,7 +223,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          22k 字
+          26k 字
         
       </span>
     
@@ -234,7 +234,7 @@
         
         
         
-          183 分钟
+          216 分钟
         
       </span>
     
@@ -1374,6 +1374,218 @@
 <li>无内核态切换：全程在用户态执行原子指令，不依赖操作系统内核；</li>
 <li>无阻塞 &#x2F; 唤醒：协程始终运行，不需要保存 &#x2F; 恢复上下文；</li>
 <li>无调度开销：不需要维护等待队列，逻辑极简。</li>
+</ol>
+<h2 id="补充3：M-P-G-模型"><a href="#补充3：M-P-G-模型" class="headerlink" title="补充3：M-P-G 模型"></a>补充3：M-P-G 模型</h2><p><strong>一、M、P、G 三者的定义与核心作用</strong></p>
+<p>M-P-G 是 Go 调度器实现「高并发协程调度」的核心模型，三者各司其职，协同完成 Goroutine 的生命周期管理：</p>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>英文全称</th>
+<th>中文含义</th>
+<th>核心定义</th>
+<th>核心作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>G</td>
+<td>Goroutine</td>
+<td>协程</td>
+<td>用户态轻量级线程，Go 程序的并发执行单元（如 <code>go func()</code> 启动的实例）</td>
+<td>承载业务逻辑（函数代码），拥有独立的用户态栈（初始 2KB，动态扩容），无直接 CPU 执行权，需绑定到 M 才能运行</td>
+</tr>
+<tr>
+<td>M</td>
+<td>Machine</td>
+<td>内核线程</td>
+<td>操作系统内核管理的物理线程（与 OS Thread 一一对应）</td>
+<td>执行 Goroutine 的 “载体”，拥有内核态栈和 CPU 执行权；一个 M 同一时间只能绑定一个 P，且只能运行一个 G</td>
+</tr>
+<tr>
+<td>P</td>
+<td>Logical Processor</td>
+<td>逻辑处理器</td>
+<td>连接 M 和 G 的 “中间桥梁”，持有 Goroutine 就绪队列和调度资源</td>
+<td>1. 维护本地 Goroutine 就绪队列（LRQ），存储待执行的 G；2. 持有调度所需的资源（如内存分配缓存、GOMAXPROCS 配额）；3. 实现 M 和 G 的解耦，让 P 成为 “可调度单元”</td>
+</tr>
+</tbody></table>
+<p><strong>通俗类比</strong>：</p>
+<ul>
+<li>G 是 “打工人”（有任务要做，但没工具和场地）；</li>
+<li>M 是 “干活的机器”（有 CPU 执行权，但需要场地才能开工）；</li>
+<li>P 是 “工作场地”（有工具和待办任务列表，机器必须绑定场地才能让工人干活）；</li>
+<li>GOMAXPROCS 是 “场地总数”（默认等于 CPU 核心数），决定了 Go 程序同时能 “开工” 的最大场地数（即最大并发执行的 M 数）。</li>
+</ul>
+<p><strong>二、P 的核心作用（调度器的 “中枢”）</strong></p>
+<p>P 是 M-P-G 模型的核心，没有 P 就无法实现 Goroutine 的高效调度，其作用可概括为 3 点：</p>
+<ol>
+<li><strong>资源持有与配额控制</strong>：P 持有调度所需的核心资源（如内存分配的 <code>mcache</code>、栈扩容的相关参数），只有绑定了 P 的 M 才能访问这些资源，确保资源隔离和高效利用；同时 P 的数量由 <code>GOMAXPROCS</code> 限制（默认等于 CPU 核心数），避免创建过多 M 导致操作系统线程上下文切换泛滥。</li>
+<li><strong>本地就绪队列（LRQ）管理</strong>：每个 P 维护一个「本地 Goroutine 就绪队列」（非全局队列），Goroutine 创建后（如 <code>go func()</code>）会优先放入当前 P 的 LRQ；这样设计是为了减少全局队列的锁竞争（全局队列 GQ 仅用于 P 之间的负载均衡），提升调度效率。</li>
+<li><strong>M 与 G 的调度中介</strong>：<ul>
+<li>当 P 的 LRQ 有就绪 G 时，绑定的 M 会从 LRQ 取出 G 执行（<code>G -&gt; M</code> 绑定）；</li>
+<li>当 G 执行阻塞 &#x2F; 结束时，M 会从 P 的 LRQ 取下一个 G 继续执行，实现 “M 复用”（避免频繁创建销毁 M）；</li>
+<li>当 P 的 LRQ 为空时，会触发「工作窃取（Work Stealing）」：从其他 P 的 LRQ 或全局队列 GQ 偷取 G，确保 P 的资源不闲置。</li>
+</ul>
+</li>
+</ol>
+<p><strong>三、当 Goroutine 执行阻塞式系统调用时，M 与 P 的绑定关系处理</strong></p>
+<p>这是面试的核心考点 ——Go 调度器通过「P 转移」机制，避免 P 资源闲置，确保并发效率不降低。具体处理流程分 3 步：</p>
+<p><strong>1. 前提：明确 “阻塞式系统调用” 的场景</strong></p>
+<p>指会导致 M（内核线程）被操作系统挂起的系统调用，如：</p>
+<ul>
+<li>时间睡眠（<code>time.Sleep(1s)</code> 底层调用 <code>nanosleep</code>）；</li>
+<li>文件 I&#x2F;O（<code>os.Read</code>&#x2F;<code>os.Write</code>，未使用 runtime 封装的非阻塞接口）；</li>
+<li>锁竞争阻塞（如 <code>sync.Mutex</code> 竞争失败，底层调用 <code>futex</code> 系统调用）；</li>
+<li>其他内核态阻塞操作（如 <code>net.Dial</code> 未使用 netpoller 机制）。</li>
+</ul>
+<p><strong>2. 调度器的处理流程（核心是 “P 不闲置”）</strong></p>
+<p>假设当前状态：G1 绑定 M1，M1 绑定 P1，P1 的 LRQ 还有 G2、G3 待执行。当 G1 执行阻塞式系统调用时：</p>
+<ol>
+<li><strong>M1 与 P1 解绑</strong>：Go runtime 检测到 G1 触发阻塞式系统调用后，会主动将 M1 与 P1 解除绑定（P1 释放 M1 的持有权）；此时 M1 会带着 G1 进入「阻塞状态」（被操作系统挂起），等待系统调用结果。</li>
+<li><strong>P1 重新绑定新的 M2</strong>：P1 释放 M1 后，会立即从「空闲 M 池」中取一个空闲的 M2（若没有则创建新的 M2），并与 M2 绑定；绑定后，M2 会从 P1 的 LRQ 中取出下一个就绪 G（如 G2），继续执行 ——<strong>P1 的资源没有闲置，并发效率不受影响</strong>。</li>
+<li><strong>阻塞结束后 M1 的处理</strong>：当 G1 的阻塞式系统调用完成（如 <code>time.Sleep</code> 结束），G1 会被标记为「就绪状态」：<ul>
+<li>若此时 P1 仍有空闲（或 M2 已执行完 G2、G3），G1 会被放入 P1 的 LRQ，等待 M2 执行；</li>
+<li>若 P1 已被其他 M 占用且 LRQ 满，G1 会被放入「全局就绪队列 GQ」，等待其他 P 通过工作窃取获取；</li>
+<li>M1 会被放回「空闲 M 池」，等待下次被 P 绑定使用（M 复用，减少内核线程创建开销）。</li>
+</ul>
+</li>
+</ol>
+<p><strong>3.为什么G1 不找 M1，而是等 M2？</strong></p>
+<p>在 G1 执行阻塞式系统调用时，调度器已经做了关键操作：</p>
+<ol>
+<li>G1 触发阻塞（如 <code>time.Sleep</code>），导致其绑定的 M1 被操作系统挂起（内核态阻塞）；</li>
+<li>Go 调度器为了不浪费 P1 的资源（P1 持有 G2、G3 等就绪协程），会主动解除 M1 与 P1 的绑定关系；<strong>M1 会立即被放回空闲池（先解绑入池，再挂起，此时 M1 仍处于操作系统挂起状态，但已不属于任何 P，进入 “待命” 模式）</strong></li>
+<li>P1 立即从「空闲 M 池」找了新的内核线程 M2 绑定，M2 开始执行 P1 本地队列（LRQ）里的 G2、G3。</li>
+</ol>
+<p>此时的状态是：</p>
+<ul>
+<li>M1：挂起中（带着 G1 阻塞），与 P1 完全解绑，不属于任何 P；</li>
+<li>M2：活跃中，与 P1 绑定，正在执行 P1 的 G；</li>
+<li>P1：正常工作，LRQ 里有就绪 G，绑定的执行载体是 M2；</li>
+<li>G1：阻塞中，属于 “无执行载体” 的状态。</li>
+</ul>
+<p><strong><code>G -&gt; M</code>的绑定时机</strong></p>
+<p>所有 <code>G -&gt; M</code> 绑定的核心前提：<strong>M 已与某个 P 绑定</strong>（M 必须通过 P 获得调度资源，才能执行 G），绑定过程由 Go runtime 自动完成，开发者无感知。</p>
+<p> <strong>场景 1：G 被创建后首次执行（最常见）</strong></p>
+<ul>
+<li>时机：当通过 <code>go func()</code> 创建新 G 时，G 会被放入当前 P 的 LRQ（本地就绪队列）；当 M（与该 P 绑定）处理完当前 G 后，从 LRQ 取出下一个 G 时，会触发 <code>G -&gt; M</code> 绑定。</li>
+<li>流程：<code>go func()</code> 创建 G → G 进入 P 的 LRQ → M 从 LRQ 取 G → 绑定 G 到 M → M 执行 G 的代码。</li>
+</ul>
+<p> <strong>场景 2：G 阻塞后恢复就绪（如系统调用、通道阻塞结束）</strong></p>
+<ul>
+<li>时机：G 因阻塞（如 <code>time.Sleep</code>、<code>&lt;-chan</code>）被从 M 上解绑后，阻塞结束会被放回 P 的 LRQ 或全局 GQ；当 M（与 P 绑定）从队列中取出这个 G 时，重新触发 <code>G -&gt; M</code> 绑定。</li>
+<li>例子：之前的 G1 阻塞结束后放入 P1 的 LRQ，M2（与 P1 绑定）取 G1 时，G1 与 M2 绑定并执行。</li>
+</ul>
+<p><strong>场景 3：P 工作窃取（Work Stealing）获得 G</strong></p>
+<ul>
+<li>时机：当 P 的 LRQ 为空时，会从其他 P 的 LRQ 或全局 GQ 偷取 G；偷取成功后，M（与当前 P 绑定）会取出偷来的 G，触发 <code>G -&gt; M</code> 绑定。</li>
+<li>流程：P2 的 LRQ 空 → 从 P1 的 LRQ 偷取 G3 → M3（与 P2 绑定）取 G3 → 绑定 G3 到 M3 并执行。</li>
+</ul>
+<p><strong>场景 4：G 被抢占后重新调度</strong></p>
+<ul>
+<li>时机：Go 1.14+ 支持抢占式调度，若 G 持续运行超过 10ms，runtime 会强制将其从 M 上解绑，放入 LRQ；当 M 再次从 LRQ 取出这个 G 时，重新绑定 <code>G -&gt; M</code>。</li>
+</ul>
+<p><strong>场景 5：主 Goroutine（main）的绑定</strong></p>
+<ul>
+<li>时机：Go 程序启动时，runtime 会创建主 Goroutine（执行 <code>main</code> 函数），并自动将其与初始 M（程序启动时创建的第一个 M）绑定 —— 这是整个程序的第一个 <code>G -&gt; M</code> 绑定。</li>
+</ul>
+<p><strong>核心原因：G1 依赖 P1 的调度资源，而非依赖 M1</strong></p>
+<p>Goroutine（G）的调度权由 <strong>P（逻辑处理器）</strong> 掌控，而非 M（内核线程）—— M 只是 “干活的工具”，P 才是 “分配任务的管理者”。具体来说：</p>
+<ol>
+<li><strong>G1 属于 P1 的 “任务池”</strong>：G1 最初是被分配到 P1 的 LRQ 中的，其调度依赖 P1 的资源（如内存分配缓存、调度权限）。即使 M1 是之前执行 G1 的载体，但 M1 已与 P1 解绑，不再拥有访问 P1 资源的权限；</li>
+<li><strong>M2 是 P1 当前的 “合法工具”</strong>：P1 现在绑定的是 M2，M2 正在持续从 P1 的 LRQ 中取任务执行。G1 阻塞结束后，要回到 P1 的 LRQ 排队，自然要等 P1 当前的执行载体（M2）来处理；</li>
+<li><strong>M1 已 “失业”，无法直接执行 G1</strong>：M1 被放回「空闲 M 池」后，处于 “无 P 绑定” 的状态 —— 没有 P 分配任务，M1 即使被唤醒，也没有可执行的 G（G 都在 P 的 LRQ 或全局 GQ 中）。它必须等待某个 P 解绑后，重新绑定 P 才能获得任务。</li>
+</ol>
+<p><strong>举个通俗例子</strong></p>
+<ul>
+<li>P1 &#x3D; 一个车间（有任务列表、工具）；</li>
+<li>M1 &#x3D; 车间最初的工人 A；</li>
+<li>M2 &#x3D; 车间后来的工人 B；</li>
+<li>G1 &#x3D; 车间的任务 1，G2&#x2F;G3 &#x3D; 车间的任务 2&#x2F;3。</li>
+</ul>
+<p>流程：</p>
+<ol>
+<li>工人 A（M1）带着任务 1（G1）去处理，结果任务 1 卡住了（阻塞）；</li>
+<li>车间主任（调度器）为了不浪费车间（P1）的产能，让工人 A（M1）先去休息（挂起），同时找了工人 B（M2）来车间干活（M2 绑定 P1）；</li>
+<li>工人 B（M2）开始处理车间里剩下的任务 2、3（G2&#x2F;G3）；</li>
+<li>后来任务 1（G1）不卡了（阻塞结束），回到车间排队（P1 的 LRQ）—— 此时车间里只有工人 B（M2）在干活，所以任务 1 只能等工人 B 处理完手头的任务，再轮到自己；</li>
+<li>工人 A（M1）休息完后，回到 “工人待命区”（空闲 M 池），等着其他车间（其他 P）需要人时再去干活（重新绑定 P）。</li>
+</ol>
+<p>这里的关键是：<strong>任务属于车间（P），而非某个工人（M）</strong> —— 工人只是车间的 “临时执行者”，车间换了工人，任务排队只能等当前车间的工人处理。</p>
+<p><strong>关键结论：</strong></p>
+<p>阻塞式系统调用只会导致「M 被挂起」，但 P 会快速绑定新的 M 继续执行其他 G，不会因为一个 G 阻塞而导致整个 P 的资源闲置 —— 这是 Go 能高效支持大量阻塞协程的核心原因。</p>
+<p><strong>四、非阻塞式系统调用（如网络 I&#x2F;O）的特殊处理</strong></p>
+<p>补充一个高频延伸点：当 G 执行「非阻塞式系统调用」（如 <code>net.Conn.Read</code>，底层通过 netpoller 机制实现）时，调度器的处理逻辑不同：</p>
+<ul>
+<li>此时 G 会被标记为「IO 阻塞状态」，从 M 上解绑，放入 runtime 的「IO 等待队列」；</li>
+<li>M 不会被挂起，继续从 P 的 LRQ 取其他 G 执行；</li>
+<li>当 IO 事件就绪（如数据到达），netpoller 会将 G 从 IO 等待队列移回 P 的 LRQ，等待 M 执行；</li>
+<li>这种场景下，M 与 P 不会解绑，P 资源利用率更高（无需重新绑定新 M）。</li>
+</ul>
+<p><strong>五、总结</strong></p>
+<ol>
+<li>M-P-G 定义：<ul>
+<li>G：协程（业务逻辑载体）；M：内核线程（执行载体）；P：逻辑处理器（调度中枢，连接 M 和 G）。</li>
+</ul>
+</li>
+<li>P 的核心作用：<ul>
+<li>持有调度资源和本地就绪队列（LRQ）；</li>
+<li>限制最大并发数（GOMAXPROCS）；</li>
+<li>实现 M 与 G 的解耦，支持工作窃取和 M 复用。</li>
+</ul>
+</li>
+<li>阻塞式系统调用时的 M-P 绑定处理：<ul>
+<li>G 阻塞导致 M 被挂起，M 与 P 立即解绑；</li>
+<li>P 快速绑定新的空闲 M，继续执行 LRQ 中的其他 G；</li>
+<li>G 阻塞结束后，被放回就绪队列（LRQ&#x2F;GQ），M 被复用 —— 确保 P 资源不闲置，并发效率不受影响。</li>
+</ul>
+</li>
+</ol>
+<h2 id="补充4：什么是Go-runtime"><a href="#补充4：什么是Go-runtime" class="headerlink" title="补充4：什么是Go runtime"></a>补充4：什么是Go runtime</h2><p>Go runtime（Go 运行时）是 <strong>Go 语言内置的 “底层支撑系统”</strong>—— 它不是用户代码的一部分，而是随 Go 程序一起编译、打包、运行的核心组件集合，本质是 “介于 Go 应用代码和操作系统内核之间的中间层”，负责管理 Go 程序的并发、内存、调度、垃圾回收等关键能力，让开发者无需关注底层细节，就能写出高效的并发程序。</p>
+<p>简单说：<strong>Go 开发者写的代码（如 <code>go func()</code>、<code>chan</code>、<code>sync</code> 包）是 “业务逻辑”，而 runtime 是 “底层引擎”</strong>—— 引擎负责把业务逻辑高效地映射到操作系统上执行，这也是 Go 语言 “简单易用又高性能” 的核心原因。</p>
+<p><strong>Go runtime 的核心功能</strong></p>
+<p>runtime 隐藏了大量底层细节，核心功能围绕 “让 Go 程序高效运行” 展开，尤其是并发相关能力：</p>
+<p><strong>1. 协程（Goroutine）生命周期管理</strong></p>
+<ul>
+<li>负责 Goroutine 的创建（<code>go func()</code> 时，runtime 会分配 Goroutine 栈、程序计数器等资源）、调度（M-P-G 模型的实现者）、销毁（Goroutine 执行完后，回收栈内存等资源）；</li>
+<li>提供 Goroutine 切换的底层支持（用户态轻量切换，无需内核介入），以及抢占式调度（Go 1.14+），避免某个 Goroutine 长期占用 CPU。</li>
+</ul>
+<p><strong>2. M-P-G 调度器实现</strong></p>
+<ul>
+<li>runtime 是 M-P-G 模型的 “执行者”：管理 M（内核线程）、P（逻辑处理器）、G（协程）的生命周期和绑定关系；</li>
+<li>处理 Goroutine 阻塞场景（如系统调用、通道阻塞、锁竞争）：解绑 M-P、复用 M、工作窃取（Work Stealing）等逻辑，都是 runtime 内部实现的。</li>
+</ul>
+<p><strong>3. 内存管理与垃圾回收（GC）</strong></p>
+<ul>
+<li>内存分配：提供高效的内存分配机制（如 TCmalloc 风格的分级分配、线程缓存 MCache、中心缓存 MCentral、页堆 MHeap），避免频繁调用系统调用分配内存；</li>
+<li>垃圾回收：自动回收不再使用的内存（如未被引用的变量、切片、结构体），Go 1.5+ 后的并发标记清除（CMS）+ 三色标记法，让 GC 停顿时间极短（毫秒级甚至微秒级），不影响业务运行。</li>
+</ul>
+<p><strong>4. 系统调用封装与适配</strong></p>
+<ul>
+<li>对操作系统的底层系统调用（如文件 I&#x2F;O、网络 I&#x2F;O、时间睡眠）进行封装，提供统一的 Go 标准库接口（如 <code>os.Read</code>、<code>net.Conn.Read</code>、<code>time.Sleep</code>）；</li>
+<li>优化网络 I&#x2F;O 性能：通过 <code>netpoller</code> 机制（基于操作系统的 I&#x2F;O 多路复用，如 epoll、kqueue），将网络 I&#x2F;O 从 “阻塞式系统调用” 转为 “非阻塞式”，避免 Goroutine 频繁阻塞导致的 M-P 解绑开销。</li>
+</ul>
+<p><strong>5. 并发原语的底层支持</strong></p>
+<ul>
+<li>Go 标准库中 <code>sync</code> 包（<code>Mutex</code>、<code>RWMutex</code>、<code>WaitGroup</code>、<code>Cond</code>）、<code>sync/atomic</code> 包的原子操作，其底层实现都依赖 runtime；</li>
+<li>例如：<code>Mutex</code> 的自旋锁 + 信号量机制、<code>WaitGroup</code> 的计数器管理、原子操作的 CPU 指令封装，都是 runtime 提供的底层能力。</li>
+</ul>
+<p><strong>6. 其他核心支撑</strong></p>
+<ul>
+<li>栈管理：Goroutine 的栈是动态扩容 &#x2F; 缩容的（初始 2KB，最大可到 GB 级），由 runtime 自动管理，避免栈溢出或内存浪费；</li>
+<li>类型信息与反射：runtime 存储了 Go 程序的类型元数据，支持 <code>reflect</code> 包的反射功能；</li>
+<li>程序启动与退出：Go 程序启动时，runtime 会先初始化（如设置 GOMAXPROCS、创建初始 M 和 P、启动 GC 协程），再执行 <code>main</code> 函数；程序退出时，runtime 会回收资源、等待所有 Goroutine 完成（若用 <code>WaitGroup</code>）。</li>
+</ul>
+<p><strong>举个例子：runtime 如何工作？（结合之前的 M-P-G 模型）</strong></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> main<br><br><span class="hljs-keyword">import</span> <span class="hljs-string">&quot;fmt&quot;</span><br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>    <span class="hljs-keyword">go</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;<br>        fmt.Println(<span class="hljs-string">&quot;hello goroutine&quot;</span>)<br>    &#125;()<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>runtime 会做以下关键操作：</p>
+<ol>
+<li>程序启动：runtime 初始化，设置 GOMAXPROCS（默认 &#x3D; CPU 核心数），创建初始的 M（内核线程）和 P（逻辑处理器）；</li>
+<li>执行 <code>main</code> 函数：<code>main</code> 函数本身也是一个 Goroutine（主 Goroutine）；</li>
+<li>创建协程：执行 <code>go func()</code> 时，runtime 会创建一个新的 Goroutine G1，分配栈空间，将其放入 P 的本地就绪队列（LRQ）；</li>
+<li>调度执行：M 绑定 P 后，从 LRQ 中取出 G1，切换到 G1 执行（用户态协程切换），打印 “hello goroutine”；</li>
+<li>程序退出：G1 执行完后，runtime 回收其资源；主 Goroutine 执行完后，runtime 等待所有 Goroutine 完成（若有），然后退出。</li>
 </ol>
 
                 
