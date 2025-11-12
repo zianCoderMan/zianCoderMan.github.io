@@ -1,0 +1,921 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="zianCoderMan">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="本文根据《Go by Example》进行学习，参考资料出自https:&#x2F;&#x2F;gobyexample-cn.github.io&#x2F; 上篇包括Go语言基础部分，从Hello World到错误处理；中篇包括协程与通道；下篇包括各种工具类的使用。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Go语言基础学习（下）">
+<meta property="og:url" content="https://ziancoderman.github.io/2025/11/12/GoByExample(down)/index.html">
+<meta property="og:site_name" content="zianCoderMan">
+<meta property="og:description" content="本文根据《Go by Example》进行学习，参考资料出自https:&#x2F;&#x2F;gobyexample-cn.github.io&#x2F; 上篇包括Go语言基础部分，从Hello World到错误处理；中篇包括协程与通道；下篇包括各种工具类的使用。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-11-12T01:35:00.000Z">
+<meta property="article:modified_time" content="2025-11-12T02:58:23.797Z">
+<meta property="article:author" content="zianCoderMan">
+<meta property="article:tag" content="Go学习">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>Go语言基础学习（下） - zianCoderMan</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"ziancoderman.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>zianCoderMan&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Go语言基础学习（下）"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-11-12 09:35" pubdate>
+          2025年11月12日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          6.8k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          57 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Go语言基础学习（下）</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>本文根据《Go by Example》进行学习，参考资料出自<a target="_blank" rel="noopener" href="https://gobyexample-cn.github.io/">https://gobyexample-cn.github.io/</a></p>
+<p>上篇包括Go语言基础部分，从Hello World到错误处理；中篇包括协程与通道；下篇包括各种工具类的使用。</p>
+<span id="more"></span>
+
+<h2 id="1-排序"><a href="#1-排序" class="headerlink" title="1.排序"></a>1.排序</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> main<br><br><span class="hljs-keyword">import</span> (<br>    <span class="hljs-string">&quot;fmt&quot;</span><br>    <span class="hljs-string">&quot;sort&quot;</span><br>)<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>    <span class="hljs-comment">// 定义字符串切片，包含 3 个无序元素</span><br>    strs := []<span class="hljs-type">string</span>&#123;<span class="hljs-string">&quot;c&quot;</span>, <span class="hljs-string">&quot;a&quot;</span>, <span class="hljs-string">&quot;b&quot;</span>&#125;<br>    <span class="hljs-comment">// 对字符串切片进行升序排序（原地排序，直接修改原切片）</span><br>    sort.Strings(strs)<br>    <span class="hljs-comment">// 输出排序后的结果：[&quot;a&quot;, &quot;b&quot;, &quot;c&quot;]</span><br>    fmt.Println(<span class="hljs-string">&quot;Strings:&quot;</span>, strs)<br><br>    <span class="hljs-comment">// 定义整数切片，包含 3 个无序元素</span><br>    ints := []<span class="hljs-type">int</span>&#123;<span class="hljs-number">7</span>, <span class="hljs-number">2</span>, <span class="hljs-number">4</span>&#125;<br>    <span class="hljs-comment">// 对整数切片进行升序排序（同样是原地排序）</span><br>    sort.Ints(ints)<br>    <span class="hljs-comment">// 输出排序后的结果：[2, 4, 7]</span><br>    fmt.Println(<span class="hljs-string">&quot;Ints:   &quot;</span>, ints)<br><br>    <span class="hljs-comment">// 校验整数切片是否已升序排序（返回 bool 值）</span><br>    s := sort.IntsAreSorted(ints)<br>    fmt.Println(<span class="hljs-string">&quot;Sorted: &quot;</span>, s)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>关键现象：原地排序</strong></p>
+<p>注意一个核心特点：<code>sort.Strings</code> 和 <code>sort.Ints</code> 都是 <strong>原地排序</strong>—— 排序时直接修改原切片的元素顺序，不会创建新切片。比如 <code>strs</code> 原本是 <code>[&quot;c&quot;, &quot;a&quot;, &quot;b&quot;]</code>，排序后原切片变成 <code>[&quot;a&quot;, &quot;b&quot;, &quot;c&quot;]</code>，无需额外接收返回值（函数返回值为 <code>void</code>）。</p>
+<p><strong>核心 API 详解（<code>sort</code> 包基础函数）</strong></p>
+<p><code>sort</code> 包针对 Go 内置的基本类型（<code>string</code>、<code>int</code>、<code>float64</code>）提供了「开箱即用」的排序函数，无需手动实现排序逻辑，下面是最常用的 3 组 API：</p>
+<table>
+<thead>
+<tr>
+<th>API 函数</th>
+<th>作用</th>
+<th>适用类型</th>
+<th>排序规则</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>sort.Strings(s []string)</code></td>
+<td>对字符串切片排序</td>
+<td><code>[]string</code></td>
+<td>字典序（升序）</td>
+</tr>
+<tr>
+<td><code>sort.Ints(x []int)</code></td>
+<td>对整数切片排序</td>
+<td><code>[]int</code></td>
+<td>数值升序</td>
+</tr>
+<tr>
+<td><code>sort.Float64s(x []float64)</code></td>
+<td>对浮点数切片排序</td>
+<td><code>[]float64</code></td>
+<td>数值升序</td>
+</tr>
+<tr>
+<td><code>sort.StringsAreSorted(s []string) bool</code></td>
+<td>校验字符串切片是否已升序排序</td>
+<td><code>[]string</code></td>
+<td>字典序校验</td>
+</tr>
+<tr>
+<td><code>sort.IntsAreSorted(x []int) bool</code></td>
+<td>校验整数切片是否已升序排序</td>
+<td><code>[]int</code></td>
+<td>数值升序校验</td>
+</tr>
+<tr>
+<td><code>sort.Float64sAreSorted(x []float64) bool</code></td>
+<td>校验浮点数切片是否已升序排序</td>
+<td><code>[]float64</code></td>
+<td>数值升序校验</td>
+</tr>
+</tbody></table>
+<p><strong>补充说明：</strong></p>
+<ol>
+<li>字符串排序规则：按「Unicode 码点（Code Point）」升序排列，也就是我们常说的「字典序」，但要注意：<ul>
+<li>大写字母的 Unicode 码点小于小写字母（如 ‘A’&#x3D;65，’a’&#x3D;97），所以 <code>[&quot;B&quot;, &quot;a&quot;]</code> 排序后是 <code>[&quot;B&quot;, &quot;a&quot;]</code>；</li>
+<li>中文按 Unicode 码点排序（如 “张三” &lt; “李四”，因为 ‘ 张 ‘ 的 Unicode 码点小于 ‘ 李 ‘）。</li>
+</ul>
+</li>
+<li><strong>校验函数的用途</strong>：避免重复排序（比如先判断切片是否已排序，若未排序再执行排序操作，提升性能）。</li>
+</ol>
+<p><strong>扩展用法：突破基础类型，实现自定义排序</strong></p>
+<p>上面的 API 仅支持内置基本类型的升序排序，若需要：</p>
+<ul>
+<li>对 <strong>自定义结构体切片</strong> 排序（如 <code>[]Person</code> 按年龄 &#x2F; 姓名排序）；</li>
+<li>对基本类型进行 <strong>降序排序</strong>（如 <code>[]int</code> 从大到小排序）；</li>
+<li>按 <strong>自定义规则</strong> 排序（如字符串按长度排序）；</li>
+</ul>
+<p>就需要用到 <code>sort</code> 包的核心接口 <code>sort.Interface</code>，它定义了排序的「三要素」：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">type</span> Interface <span class="hljs-keyword">interface</span> &#123;<br>    Len() <span class="hljs-type">int</span>           <span class="hljs-comment">// 返回切片长度</span><br>    Less(i, j <span class="hljs-type">int</span>) <span class="hljs-type">bool</span> <span class="hljs-comment">// 定义排序规则：i 元素是否应该排在 j 元素前面（true=是）</span><br>    Swap(i, j <span class="hljs-type">int</span>)      <span class="hljs-comment">// 交换 i 和 j 元素的位置</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>只要自定义类型（通常是切片）实现了这三个方法，就能用 <code>sort.Sort()</code> 函数排序。下面举 2 个高频场景示例：</p>
+<p><strong>示例 1：整数切片降序排序</strong></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> main<br><br><span class="hljs-keyword">import</span> (<br>    <span class="hljs-string">&quot;fmt&quot;</span><br>    <span class="hljs-string">&quot;sort&quot;</span><br>)<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>    ints := []<span class="hljs-type">int</span>&#123;<span class="hljs-number">7</span>, <span class="hljs-number">2</span>, <span class="hljs-number">4</span>&#125;<br>    <span class="hljs-comment">// 方式 1：用 sort.Slice （Go 1.8+ 推荐，更简洁）</span><br>    sort.Slice(ints, <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(i, j <span class="hljs-type">int</span>)</span></span> <span class="hljs-type">bool</span> &#123;<br>        <span class="hljs-keyword">return</span> ints[i] &gt; ints[j] <span class="hljs-comment">// 降序规则：i 元素 &gt; j 元素时，i 排在前面</span><br>    &#125;)<br>    fmt.Println(<span class="hljs-string">&quot;Ints 降序:&quot;</span>, ints) <span class="hljs-comment">// 输出：[7,4,2]</span><br><br>    <span class="hljs-comment">// 方式 2：实现 sort.Interface 接口（传统方式）</span><br>    <span class="hljs-keyword">type</span> IntSlice []<span class="hljs-type">int</span><br>    <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(s IntSlice)</span></span> Len() <span class="hljs-type">int</span>           &#123; <span class="hljs-keyword">return</span> <span class="hljs-built_in">len</span>(s) &#125;<br>    <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(s IntSlice)</span></span> Less(i, j <span class="hljs-type">int</span>) <span class="hljs-type">bool</span> &#123; <span class="hljs-keyword">return</span> s[i] &gt; s[j] &#125; <span class="hljs-comment">// 降序规则</span><br>    <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(s IntSlice)</span></span> Swap(i, j <span class="hljs-type">int</span>)      &#123; s[i], s[j] = s[j], s[i] &#125;<br><br>    ints2 := []<span class="hljs-type">int</span>&#123;<span class="hljs-number">7</span>, <span class="hljs-number">2</span>, <span class="hljs-number">4</span>&#125;<br>    sort.Sort(IntSlice(ints2))<br>    fmt.Println(<span class="hljs-string">&quot;Ints 降序（接口方式）:&quot;</span>, ints2) <span class="hljs-comment">// 输出：[7,4,2]</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>示例 2：自定义结构体切片排序（按年龄升序，年龄相同按姓名字典序）</strong></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> main<br><br><span class="hljs-keyword">import</span> (<br>    <span class="hljs-string">&quot;fmt&quot;</span><br>    <span class="hljs-string">&quot;sort&quot;</span><br>)<br><br><span class="hljs-comment">// 定义自定义结构体</span><br><span class="hljs-keyword">type</span> Person <span class="hljs-keyword">struct</span> &#123;<br>    Name <span class="hljs-type">string</span> <span class="hljs-comment">// 姓名</span><br>    Age  <span class="hljs-type">int</span>    <span class="hljs-comment">// 年龄</span><br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>    people := []Person&#123;<br>        &#123;<span class="hljs-string">&quot;Bob&quot;</span>, <span class="hljs-number">25</span>&#125;,<br>        &#123;<span class="hljs-string">&quot;Alice&quot;</span>, <span class="hljs-number">20</span>&#125;,<br>        &#123;<span class="hljs-string">&quot;Charlie&quot;</span>, <span class="hljs-number">20</span>&#125;,<br>    &#125;<br><br>    <span class="hljs-comment">// 用 sort.Slice 实现自定义排序（最简洁）</span><br>    sort.Slice(people, <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(i, j <span class="hljs-type">int</span>)</span></span> <span class="hljs-type">bool</span> &#123;<br>        <span class="hljs-comment">// 排序规则：先按年龄升序，年龄相同按姓名字典序升序</span><br>        <span class="hljs-keyword">if</span> people[i].Age == people[j].Age &#123;<br>            <span class="hljs-keyword">return</span> people[i].Name &lt; people[j].Name <span class="hljs-comment">// 姓名字典序</span><br>        &#125;<br>        <span class="hljs-keyword">return</span> people[i].Age &lt; people[j].Age <span class="hljs-comment">// 年龄升序</span><br>    &#125;)<br><br>    fmt.Println(<span class="hljs-string">&quot;按年龄+姓名排序:&quot;</span>, people)<br>    <span class="hljs-comment">// 输出：[&#123;Alice 20&#125; &#123;Charlie 20&#125; &#123;Bob 25&#125;]</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>核心注意点</strong></p>
+<p><strong>1.原地排序的副作用</strong>：排序会直接修改原切片，若需要保留原切片，需先创建副本再排序：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs go">strs := []<span class="hljs-type">string</span>&#123;<span class="hljs-string">&quot;c&quot;</span>, <span class="hljs-string">&quot;a&quot;</span>, <span class="hljs-string">&quot;b&quot;</span>&#125;<br>strsCopy := <span class="hljs-built_in">make</span>([]<span class="hljs-type">string</span>, <span class="hljs-built_in">len</span>(strs))<br><span class="hljs-built_in">copy</span>(strsCopy, strs) <span class="hljs-comment">// 复制原切片</span><br>sort.Strings(strsCopy) <span class="hljs-comment">// 对副本排序，原切片不变</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>2.<code>sort.Slice</code> 是首选</strong>：Go 1.8 引入的 <code>sort.Slice</code> 无需手动实现 <code>sort.Interface</code>，直接通过匿名函数定义 <code>Less</code> 规则，代码更简洁，优先使用；</p>
+<p><strong>3.空切片 &#x2F; 长度为 1 的切片</strong>：排序函数会直接返回，无报错（<code>sort.StringsAreSorted</code> 会返回 <code>true</code>）；</p>
+<p><strong>4.浮点数排序的特殊情况</strong>：<code>NaN</code>（非数字）会被排在最后（因为 <code>sort.Float64s</code> 中 <code>NaN &lt; 任何数</code> 都返回 <code>false</code>）。</p>
+<h2 id="2-使用函数自定义排序"><a href="#2-使用函数自定义排序" class="headerlink" title="2.使用函数自定义排序"></a>2.使用函数自定义排序</h2><p>（同1扩展用法）</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> main<br><br><span class="hljs-keyword">import</span> (<br>    <span class="hljs-string">&quot;fmt&quot;</span><br>    <span class="hljs-string">&quot;sort&quot;</span><br>)<br><br><span class="hljs-keyword">type</span> byLength []<span class="hljs-type">string</span><br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(s byLength)</span></span> Len() <span class="hljs-type">int</span> &#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-built_in">len</span>(s)<br>&#125;<br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(s byLength)</span></span> Swap(i, j <span class="hljs-type">int</span>) &#123;<br>    s[i], s[j] = s[j], s[i]<br>&#125;<br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(s byLength)</span></span> Less(i, j <span class="hljs-type">int</span>) <span class="hljs-type">bool</span> &#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-built_in">len</span>(s[i]) &lt; <span class="hljs-built_in">len</span>(s[j])<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>    fruits := []<span class="hljs-type">string</span>&#123;<span class="hljs-string">&quot;peach&quot;</span>, <span class="hljs-string">&quot;banana&quot;</span>, <span class="hljs-string">&quot;kiwi&quot;</span>&#125;<br>    sort.Sort(byLength(fruits))<br>    fmt.Println(fruits)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="3-panic"><a href="#3-panic" class="headerlink" title="3.panic"></a>3.panic</h2><p> <code>panic</code> 被调用时，程序会立即停止执行当前流程，进入「恐慌（Panic）模式」，并逐步向上（调用栈）传播，最终打印错误信息和调用栈日志后退出。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> main<br><br><span class="hljs-keyword">import</span> <span class="hljs-string">&quot;os&quot;</span><br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br><br>    <span class="hljs-comment">// 触发 panic：程序立即进入恐慌模式，停止执行后续代码</span><br>    <span class="hljs-built_in">panic</span>(<span class="hljs-string">&quot;a problem&quot;</span>)<br><br>    <span class="hljs-comment">// 以下代码完全不会执行（被 panic 中断）</span><br>    _, err := os.Create(<span class="hljs-string">&quot;/tmp/file&quot;</span>)<br>    <span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>       <span class="hljs-comment">// 这个 panic 永远不会触发</span><br>       <span class="hljs-built_in">panic</span>(err)<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong><code>panic</code> 的核心特性</strong></p>
+<p><strong>1. 触发后立即终止当前流程，后续代码不可达</strong></p>
+<p><code>panic</code> 是「终止性」的 —— 一旦触发，当前函数的后续代码会直接跳过，程序不会继续执行。比如上面的代码，<code>panic</code> 之后的 <code>os.Create</code> 完全没机会运行。</p>
+<p><strong>2. 支持传入任意类型的参数（不止字符串）</strong></p>
+<p><code>panic</code> 的函数签名是 <code>func panic(v interface{})</code>，可以传入任何类型的值作为错误信息，常见的有：</p>
+<ul>
+<li>字符串（直接描述错误）；</li>
+<li><code>error</code> 类型（标准错误类型，包含详细错误信息）；</li>
+<li>其他类型（如整数、结构体，但不推荐，可读性差）。</li>
+</ul>
+<p>示例：传入 <code>error</code> 类型（代码中被跳过的那个 <code>panic(err)</code> 就是这种场景）：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>    _, err := os.Create(<span class="hljs-string">&quot;/tmp/file&quot;</span>)<br>    <span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>        <span class="hljs-built_in">panic</span>(err) <span class="hljs-comment">// 传入 error 类型，会打印 err.Error() 的内容</span><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>3. 会触发「延迟函数（<code>defer</code>）」执行（关键特性）</strong></p>
+<p><code>panic</code> 触发后，虽然当前流程终止，但<strong>当前函数中已注册的 <code>defer</code> 函数会被优先执行</strong>（按「后进先出」顺序），执行完 <code>defer</code> 后，程序才会继续向上传播 panic 并退出。</p>
+<p>示例：<code>defer</code> 在 panic 后的执行：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>    <span class="hljs-comment">// 注册 defer 函数：会在 panic 后、程序退出前执行</span><br>    <span class="hljs-keyword">defer</span> fmt.Println(<span class="hljs-string">&quot;defer 1: 清理资源 1&quot;</span>)<br>    <span class="hljs-keyword">defer</span> fmt.Println(<span class="hljs-string">&quot;defer 2: 清理资源 2&quot;</span>)<br><br>    <span class="hljs-built_in">panic</span>(<span class="hljs-string">&quot;a problem&quot;</span>) <span class="hljs-comment">// 触发 panic</span><br><br>    <span class="hljs-comment">// 以下 defer 不会被注册（因为 panic 中断了流程）</span><br>    <span class="hljs-keyword">defer</span> fmt.Println(<span class="hljs-string">&quot;defer 3: 不会执行&quot;</span>)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">defer 2: 清理资源 2<br>defer 1: 清理资源 1<br>panic: a problem<br><br>goroutine 1 [running]:<br>main.main()<br>        /path/to/your/code/main.go:9 +0x95<br>exit status 2<br></code></pre></td></tr></table></figure>
+
+<p><strong>结论</strong>：<code>defer</code> 是 panic 场景下「资源清理」的唯一机会（如关闭文件、释放锁、断开连接）。</p>
+<p><strong>4. 可以被 <code>recover</code> 捕获（避免程序退出）</strong></p>
+<p><code>panic</code> 不是绝对的 “程序必死”—— 如果在 <code>defer</code> 函数中调用 <code>recover()</code>，可以捕获 panic，让程序恢复正常执行（后续会详细讲 <code>recover</code>，这里先知道这个特性）。</p>
+<p>示例：用 <code>recover</code> 捕获 panic：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>    <span class="hljs-keyword">defer</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;<br>        <span class="hljs-comment">// recover() 必须在 defer 函数中调用，才能捕获 panic</span><br>        <span class="hljs-keyword">if</span> err := <span class="hljs-built_in">recover</span>(); err != <span class="hljs-literal">nil</span> &#123;<br>            fmt.Printf(<span class="hljs-string">&quot;捕获到 panic：%v\n&quot;</span>, err)<br>        &#125;<br>    &#125;()<br><br>    <span class="hljs-built_in">panic</span>(<span class="hljs-string">&quot;a problem&quot;</span>) <span class="hljs-comment">// 触发 panic，但会被 recover 捕获</span><br>    fmt.Println(<span class="hljs-string">&quot;程序继续执行&quot;</span>) <span class="hljs-comment">// 这行依然不会执行（panic 会终止当前流程，直到 defer 执行）</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">捕获到 panic：a problem<br></code></pre></td></tr></table></figure>
+
+<p>程序不会退出，而是正常结束（退出状态码 0）。</p>
+<p><strong><code>panic</code> 的使用场景</strong></p>
+<p><strong>1.程序启动时的致命错误</strong>：比如配置文件加载失败、数据库连接初始化失败（程序无法正常运行，必须终止）；</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">init</span><span class="hljs-params">()</span></span> &#123;<br>    <span class="hljs-comment">// 加载配置文件，失败则 panic（程序无法启动）</span><br>    config, err := loadConfig(<span class="hljs-string">&quot;config.yaml&quot;</span>)<br>    <span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>        <span class="hljs-built_in">panic</span>(fmt.Sprintf(<span class="hljs-string">&quot;配置加载失败：%v&quot;</span>, err))<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>2.逻辑断言失败</strong>：比如代码执行到了 “理论上不可能到达” 的分支（说明程序逻辑有严重 bug）</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">divide</span><span class="hljs-params">(a, b <span class="hljs-type">int</span>)</span></span> <span class="hljs-type">int</span> &#123;<br>    <span class="hljs-keyword">if</span> b == <span class="hljs-number">0</span> &#123;<br>        <span class="hljs-comment">// 除零错误，属于逻辑断言失败（调用者应保证 b 不为 0）</span><br>        <span class="hljs-built_in">panic</span>(<span class="hljs-string">&quot;除数不能为 0&quot;</span>)<br>    &#125;<br>    <span class="hljs-keyword">return</span> a / b<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>3.不可恢复的资源错误</strong>：比如文件打开后无法关闭（但这种场景更推荐用 <code>defer</code> + 错误日志，而非 panic）。</p>
+<p><strong>绝对不推荐使用 <code>panic</code> 的场景：</strong></p>
+<ol>
+<li><strong>普通业务错误</strong>：比如用户输入非法、网络请求超时、数据库查询无结果（这些错误是可预期的，应返回 <code>error</code> 让调用者处理）；</li>
+<li><strong>库函数中</strong>：编写第三方库时，不要轻易触发 <code>panic</code>（会导致调用者的程序崩溃，违背 “库的稳定性” 原则），应返回 <code>error</code> 类型。</li>
+</ol>
+<p><strong><code>panic</code> 与 <code>error</code> 的核心区别</strong></p>
+<table>
+<thead>
+<tr>
+<th>对比维度</th>
+<th><code>panic</code>（异常）</th>
+<th><code>error</code>（错误）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>本质</td>
+<td>不可恢复的严重错误，触发程序中断</td>
+<td>可预期的普通错误，仅传递错误信息</td>
+</tr>
+<tr>
+<td>处理方式</td>
+<td>用 <code>recover</code> 捕获（可选），否则程序退出</td>
+<td>调用者显式判断、处理（如重试、返回友好提示）</td>
+</tr>
+<tr>
+<td>适用场景</td>
+<td>程序启动失败、逻辑断言失败等致命错误</td>
+<td>用户输入错误、网络超时、文件不存在等普通错误</td>
+</tr>
+<tr>
+<td>代码影响</td>
+<td>终止当前流程，执行 <code>defer</code> 后退出（或恢复）</td>
+<td>不影响程序执行流程，仅返回错误信息</td>
+</tr>
+<tr>
+<td>最佳实践</td>
+<td>尽量少用，仅用于致命错误</td>
+<td>优先使用，显式处理所有可预期错误</td>
+</tr>
+</tbody></table>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// 普通错误：文件不存在，返回 error，让调用者处理</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">readFile</span><span class="hljs-params">(path <span class="hljs-type">string</span>)</span></span> ([]<span class="hljs-type">byte</span>, <span class="hljs-type">error</span>) &#123;<br>    <span class="hljs-keyword">if</span> _, err := os.Stat(path); os.IsNotExist(err) &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>, fmt.Errorf(<span class="hljs-string">&quot;文件不存在：%w&quot;</span>, err) <span class="hljs-comment">// 返回 error，不 panic</span><br>    &#125;<br>    <span class="hljs-keyword">return</span> os.ReadFile(path)<br>&#125;<br><br><span class="hljs-comment">// 严重错误：配置文件不存在，程序无法运行，panic</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">loadConfig</span><span class="hljs-params">(path <span class="hljs-type">string</span>)</span></span> (Config, <span class="hljs-type">error</span>) &#123;<br>    data, err := readFile(path)<br>    <span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>        <span class="hljs-keyword">return</span> Config&#123;&#125;, fmt.Errorf(<span class="hljs-string">&quot;配置文件读取失败：%w&quot;</span>, err)<br>    &#125;<br>    <span class="hljs-comment">// 解析配置...</span><br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>    config, err := loadConfig(<span class="hljs-string">&quot;config.yaml&quot;</span>)<br>    <span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>        <span class="hljs-built_in">panic</span>(err) <span class="hljs-comment">// 配置加载失败，程序无法启动，panic</span><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="4-defer"><a href="#4-defer" class="headerlink" title="4.defer"></a>4.defer</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> main<br><br><span class="hljs-keyword">import</span> (<br>    <span class="hljs-string">&quot;fmt&quot;</span><br>    <span class="hljs-string">&quot;os&quot;</span><br>)<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br><br>    f := createFile(<span class="hljs-string">&quot;/tmp/defer.txt&quot;</span>)<br>    <span class="hljs-comment">// 注册 defer 函数：将 closeFile(f) 延迟到当前函数（main）退出前执行</span><br>    <span class="hljs-keyword">defer</span> closeFile(f)<br>    writeFile(f)<br>&#125;<br><br><span class="hljs-comment">// main 函数执行完毕，触发 defer 函数执行：调用 closeFile(f) 关闭文件（输出：closing）</span><br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">createFile</span><span class="hljs-params">(p <span class="hljs-type">string</span>)</span></span> *os.File &#123;<br>    fmt.Println(<span class="hljs-string">&quot;creating&quot;</span>)<br>    f, err := os.Create(p)<br>    <span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>       <span class="hljs-built_in">panic</span>(err)<br>    &#125;<br>    <span class="hljs-keyword">return</span> f<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">writeFile</span><span class="hljs-params">(f *os.File)</span></span> &#123;<br>    fmt.Println(<span class="hljs-string">&quot;writing&quot;</span>)<br>    fmt.Fprintln(f, <span class="hljs-string">&quot;data&quot;</span>)<br><br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">closeFile</span><span class="hljs-params">(f *os.File)</span></span> &#123;<br>    fmt.Println(<span class="hljs-string">&quot;closing&quot;</span>)<br>    err := f.Close()<br><br>    <span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>       fmt.Fprintf(os.Stderr, <span class="hljs-string">&quot;error: %v\n&quot;</span>, err)<br>       os.Exit(<span class="hljs-number">1</span>)<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong><code>defer</code> 的核心特性</strong></p>
+<p><strong>1. 执行时机：当前函数（或协程）退出前</strong></p>
+<p><code>defer</code> 函数的执行时机是「包裹它的函数（如 <code>main</code>）执行完毕后、退出前」，而非代码执行到 <code>defer</code> 行时。常见触发函数退出的场景：</p>
+<ul>
+<li>函数正常执行完所有代码；</li>
+<li>函数中触发 <code>panic</code>；</li>
+<li>函数执行 <code>return</code> 语句。</li>
+</ul>
+<p><strong>2. 执行顺序：后进先出（LIFO）—— 栈式执行</strong></p>
+<p>若同一函数中注册多个 <code>defer</code> 函数，执行顺序是「最后注册的先执行」，类似栈的「后进先出」。</p>
+<p>示例：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>    <span class="hljs-keyword">defer</span> fmt.Println(<span class="hljs-string">&quot;defer 1&quot;</span>) <span class="hljs-comment">// 第一个注册</span><br>    <span class="hljs-keyword">defer</span> fmt.Println(<span class="hljs-string">&quot;defer 2&quot;</span>) <span class="hljs-comment">// 第二个注册</span><br>    <span class="hljs-keyword">defer</span> fmt.Println(<span class="hljs-string">&quot;defer 3&quot;</span>) <span class="hljs-comment">// 第三个注册</span><br><br>    fmt.Println(<span class="hljs-string">&quot;main 执行中&quot;</span>)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>输出：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">main 执行中<br>defer 3 // 最后注册，最先执行<br>defer 2<br>defer 1 // 最先注册，最后执行<br></code></pre></td></tr></table></figure>
+
+<p><strong>3. 变量捕获：注册时拷贝变量值（非引用）</strong></p>
+<p><code>defer</code> 函数注册时，会<strong>立即拷贝它所依赖的变量值</strong>，后续变量值的修改不会影响 <code>defer</code> 函数的执行结果。</p>
+<p>示例：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>    x := <span class="hljs-number">10</span><br>    <span class="hljs-comment">// 注册时拷贝 x 的当前值（10）</span><br>    <span class="hljs-keyword">defer</span> fmt.Println(<span class="hljs-string">&quot;defer 捕获的 x：&quot;</span>, x) <br><br>    x = <span class="hljs-number">20</span> <span class="hljs-comment">// 后续修改 x 的值，不影响 defer 的输出</span><br>    fmt.Println(<span class="hljs-string">&quot;main 中的 x：&quot;</span>, x)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>输出：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">main 中的 x： 20<br>defer 捕获的 x： 10 // 捕获的是注册时的拷贝值<br></code></pre></td></tr></table></figure>
+
+<p><strong>例外</strong>：若 <code>defer</code> 函数依赖的是「变量的指针」，则会受后续修改影响（因为拷贝的是指针地址，指向的变量值可变）：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>    x := <span class="hljs-number">10</span><br>    p := &amp;x<br>    <span class="hljs-comment">// 捕获指针 p（拷贝指针地址）</span><br>    <span class="hljs-keyword">defer</span> fmt.Println(<span class="hljs-string">&quot;defer 捕获的 x：&quot;</span>, *p) <br><br>    x = <span class="hljs-number">20</span> <span class="hljs-comment">// 修改指针指向的变量值，defer 输出会变化</span><br>    fmt.Println(<span class="hljs-string">&quot;main 中的 x：&quot;</span>, x)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>输出：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">main 中的 x： 20<br>defer 捕获的 x： 20 // 指针指向的值已修改<br></code></pre></td></tr></table></figure>
+
+<p><strong>4. 支持函数调用、方法调用，也支持匿名函数</strong></p>
+<p><code>defer</code> 后面可以跟：</p>
+<ul>
+<li>普通函数调用（如 <code>defer closeFile(f)</code>）；</li>
+<li>方法调用（如 <code>defer f.Close()</code>）；</li>
+<li>匿名函数（最灵活，支持复杂逻辑）。</li>
+</ul>
+<p>示例：匿名函数形式的 <code>defer</code>（带参数、带返回值）：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>    f := createFile(<span class="hljs-string">&quot;/tmp/defer.txt&quot;</span>)<br>    <span class="hljs-comment">// 匿名函数形式的 defer，可直接处理错误、添加逻辑</span><br>    <span class="hljs-keyword">defer</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(file *os.File)</span></span> &#123;<br>        fmt.Println(<span class="hljs-string">&quot;closing&quot;</span>)<br>        <span class="hljs-keyword">if</span> err := file.Close(); err != <span class="hljs-literal">nil</span> &#123;<br>            fmt.Fprintf(os.Stderr, <span class="hljs-string">&quot;close error: %v\n&quot;</span>, err)<br>        &#125;<br>    &#125;(f) <span class="hljs-comment">// 此处传入 f 的拷贝值（注册时的文件句柄）</span><br><br>    writeFile(f)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong><code>defer</code> 的核心使用场景</strong></p>
+<p><code>defer</code> 的设计初衷是「资源清理」，核心场景围绕「确保资源被释放，避免泄漏」：</p>
+<p><strong>1. 文件 &#x2F; 网络连接 &#x2F; 数据库连接关闭</strong></p>
+<p>这是最常用的场景 —— 打开文件、建立连接后，立即用 <code>defer</code> 注册关闭操作，避免后续忘记关闭。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// 数据库连接示例</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">connectDB</span><span class="hljs-params">()</span></span> *sql.DB &#123;<br>    db, err := sql.Open(<span class="hljs-string">&quot;mysql&quot;</span>, <span class="hljs-string">&quot;user:pass@tcp(127.0.0.1:3306)/dbname&quot;</span>)<br>    <span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>        <span class="hljs-built_in">panic</span>(err)<br>    &#125;<br>    <span class="hljs-comment">// 延迟关闭数据库连接（main 退出前执行）</span><br>    <span class="hljs-keyword">defer</span> db.Close() <br>    <span class="hljs-keyword">return</span> db<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>2. 锁的释放（避免死锁）</strong></p>
+<p>使用 <code>sync.Mutex</code> 等锁时，<code>Lock</code> 后立即 <code>defer Unlock</code>，确保无论中间逻辑是否出错，锁都会被释放。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">var</span> mu sync.Mutex<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">doSomething</span><span class="hljs-params">()</span></span> &#123;<br>    mu.Lock()<br>    <span class="hljs-comment">// 延迟释放锁，避免中间 panic 导致死锁</span><br>    <span class="hljs-keyword">defer</span> mu.Unlock() <br><br>    <span class="hljs-comment">// 业务逻辑（即使发生 panic，锁也会被释放）</span><br>    fmt.Println(<span class="hljs-string">&quot;do something&quot;</span>)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>3. 日志记录 &#x2F; 统计（如接口耗时统计）</strong></p>
+<p>用 <code>defer</code> 记录函数执行耗时，无需在函数末尾手动写统计代码，逻辑更简洁。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">apiHandler</span><span class="hljs-params">()</span></span> &#123;<br>    start := time.Now()<br>    <span class="hljs-comment">// 延迟记录耗时（函数退出前执行）</span><br>    <span class="hljs-keyword">defer</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;<br>        cost := time.Since(start)<br>        fmt.Printf(<span class="hljs-string">&quot;接口执行耗时：%v\n&quot;</span>, cost)<br>    &#125;()<br><br>    <span class="hljs-comment">// 接口业务逻辑（如数据库查询、网络请求）</span><br>    time.Sleep(<span class="hljs-number">100</span> * time.Millisecond)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>4. <code>panic</code> 捕获（配合 <code>recover</code>）</strong></p>
+<p><code>recover</code> 必须在 <code>defer</code> 函数中调用，才能捕获 <code>panic</code>，避免程序退出（后续会详细讲 <code>recover</code>，这里先记住场景）。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">safeRun</span><span class="hljs-params">()</span></span> &#123;<br>    <span class="hljs-keyword">defer</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;<br>        <span class="hljs-keyword">if</span> err := <span class="hljs-built_in">recover</span>(); err != <span class="hljs-literal">nil</span> &#123;<br>            fmt.Printf(<span class="hljs-string">&quot;捕获到 panic：%v\n&quot;</span>, err)<br>        &#125;<br>    &#125;()<br><br>    <span class="hljs-built_in">panic</span>(<span class="hljs-string">&quot;something wrong&quot;</span>) <span class="hljs-comment">// 会被 defer 中的 recover 捕获</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong><code>defer</code> 的避坑指南</strong></p>
+<p><strong>1. 避免在循环中注册 <code>defer</code>（可能导致资源泄漏）</strong></p>
+<p>循环中注册 <code>defer</code> 时，<code>defer</code> 函数会在循环所在的函数（如 <code>main</code>）退出时才批量执行 —— 若循环次数多（如 1000 次打开文件），会导致大量文件句柄被占用，直到函数退出才释放，引发资源泄漏。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// 错误：1000 个文件句柄会被占用到 main 退出</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">badLoop</span><span class="hljs-params">()</span></span> &#123;<br>    <span class="hljs-keyword">for</span> i := <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">1000</span>; i++ &#123;<br>        f, err := os.Create(fmt.Sprintf(<span class="hljs-string">&quot;/tmp/file%d.txt&quot;</span>, i))<br>        <span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>            <span class="hljs-built_in">panic</span>(err)<br>        &#125;<br>        <span class="hljs-keyword">defer</span> f.Close() <span class="hljs-comment">// 循环中注册，1000 个 defer 会堆积</span><br>        fmt.Fprintln(f, <span class="hljs-string">&quot;data&quot;</span>)<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>正确做法（用函数包裹，<code>defer</code> 在子函数中执行）：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// 正确：每个文件在子函数退出时立即关闭</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">goodLoop</span><span class="hljs-params">()</span></span> &#123;<br>    <span class="hljs-keyword">for</span> i := <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">1000</span>; i++ &#123;<br>        <span class="hljs-comment">// 用匿名函数包裹，每次循环创建独立的函数作用域</span><br>        <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;<br>            f, err := os.Create(fmt.Sprintf(<span class="hljs-string">&quot;/tmp/file%d.txt&quot;</span>, i))<br>            <span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>                <span class="hljs-built_in">panic</span>(err)<br>            &#125;<br>            <span class="hljs-keyword">defer</span> f.Close() <span class="hljs-comment">// 子函数退出时立即关闭文件</span><br>            fmt.Fprintln(f, <span class="hljs-string">&quot;data&quot;</span>)<br>        &#125;()<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>2. 注意 <code>defer</code> 对 <code>return</code> 值的影响</strong></p>
+<p><code>defer</code> 函数可以修改「命名返回值」的值 —— 因为 <code>return</code> 语句的执行逻辑是：先给返回值赋值，再执行 <code>defer</code> 函数，最后返回。</p>
+<p>示例（命名返回值被 <code>defer</code> 修改）：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// 命名返回值：result</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">add</span><span class="hljs-params">(a, b <span class="hljs-type">int</span>)</span></span> (result <span class="hljs-type">int</span>) &#123;<br>    <span class="hljs-keyword">defer</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;<br>        result += <span class="hljs-number">10</span> <span class="hljs-comment">// defer 函数修改返回值</span><br>    &#125;()<br>    <span class="hljs-keyword">return</span> a + b <span class="hljs-comment">// 步骤：1. result = a+b；2. 执行 defer（result +=10）；3. 返回 result</span><br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>    fmt.Println(add(<span class="hljs-number">2</span>, <span class="hljs-number">3</span>)) <span class="hljs-comment">// 输出：15（2+3=5，defer 加 10 后为 15）</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>3. 避免 <code>defer</code> 中执行耗时操作</strong></p>
+<p><code>defer</code> 函数会阻塞当前函数退出，若 <code>defer</code> 中执行耗时操作（如网络请求、大数据处理），会导致函数退出变慢，影响性能。</p>
+<h2 id="5-recover"><a href="#5-recover" class="headerlink" title="5.recover"></a>5.recover</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> main<br><br><span class="hljs-keyword">import</span> <span class="hljs-string">&quot;fmt&quot;</span><br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">mayPanic</span><span class="hljs-params">()</span></span> &#123;<br>    <span class="hljs-built_in">panic</span>(<span class="hljs-string">&quot;a problem&quot;</span>)<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>    <span class="hljs-comment">// 注册 defer 匿名函数：会在 main 函数退出前执行</span><br>    <span class="hljs-keyword">defer</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;<br>       <span class="hljs-comment">// 调用 recover()：仅在 defer 函数中有效，用于捕获 panic</span><br>       <span class="hljs-keyword">if</span> r := <span class="hljs-built_in">recover</span>(); r != <span class="hljs-literal">nil</span> &#123;<br>          <span class="hljs-comment">//  捕获到 panic 后执行：打印错误信息（r 是 panic 传入的参数）</span><br>          fmt.Println(<span class="hljs-string">&quot;Recovered. Error:\n&quot;</span>, r)<br>       &#125;<br>    &#125;()<br><br>    <span class="hljs-comment">//  调用 mayPanic，触发 panic（程序进入恐慌模式）</span><br>    mayPanic()<br><br>    <span class="hljs-comment">// 这行代码不会执行：因为 panic 会终止当前流程，直接跳转到 defer 函数</span><br>    fmt.Println(<span class="hljs-string">&quot;After mayPanic()&quot;</span>)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>关键现象</strong>：程序没有崩溃退出（退出状态码为 0），而是正常执行完 <code>defer</code> 函数后结束 ——<code>recover</code> 成功捕获了 <code>panic</code>，阻止了程序崩溃。</p>
+<p><strong><code>recover</code> 的核心特性</strong></p>
+<p><strong>1. 唯一有效场景：在 <code>defer</code> 匿名函数中调用</strong></p>
+<p><code>recover</code> 只有在「<code>defer</code> 注册的函数（通常是匿名函数）中调用」时才有效 —— 单独调用、在非 <code>defer</code> 函数中调用，都无法捕获 <code>panic</code>。</p>
+<p><strong>错误示例（无效用法）</strong></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>    <span class="hljs-comment">// 错误 1：直接调用 recover，无法捕获后续的 panic</span><br>    <span class="hljs-keyword">if</span> r := <span class="hljs-built_in">recover</span>(); r != <span class="hljs-literal">nil</span> &#123;<br>        fmt.Println(<span class="hljs-string">&quot;recover:&quot;</span>, r)<br>    &#125;<br><br>    <span class="hljs-comment">// 错误 2：在非 defer 函数中调用 recover</span><br>    <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;<br>        <span class="hljs-keyword">if</span> r := <span class="hljs-built_in">recover</span>(); r != <span class="hljs-literal">nil</span> &#123; <span class="hljs-comment">// 无效，无法捕获 panic</span><br>            fmt.Println(<span class="hljs-string">&quot;recover:&quot;</span>, r)<br>        &#125;<br>    &#125;()<br><br>    <span class="hljs-built_in">panic</span>(<span class="hljs-string">&quot;a problem&quot;</span>) <span class="hljs-comment">// 程序依然崩溃</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>2. 返回值含义：捕获到 <code>panic</code> 则返回 <code>panic</code> 的参数，否则返回 <code>nil</code></strong></p>
+<p><code>recover()</code> 的函数签名是 <code>func recover() interface{}</code>，返回值类型为 <code>interface{}</code>（可接收任意类型）：</p>
+<ul>
+<li>若捕获到 <code>panic</code>：返回 <code>panic</code> 传入的参数（如字符串、<code>error</code> 类型）；</li>
+<li>若未捕获到 <code>panic</code>（程序正常执行）：返回 <code>nil</code>（因此代码中需要判断 <code>r != nil</code> 才处理异常）。</li>
+</ul>
+<p><strong>示例（捕获 <code>error</code> 类型的 <code>panic</code>）：</strong></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">mayPanicWithError</span><span class="hljs-params">()</span></span> &#123;<br>    err := fmt.Errorf(<span class="hljs-string">&quot;file not found&quot;</span>)<br>    <span class="hljs-built_in">panic</span>(err) <span class="hljs-comment">// 传入 error 类型</span><br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>    <span class="hljs-keyword">defer</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;<br>        <span class="hljs-keyword">if</span> r := <span class="hljs-built_in">recover</span>(); r != <span class="hljs-literal">nil</span> &#123;<br>            <span class="hljs-comment">// 类型断言，将 interface&#123;&#125; 转为 error 类型</span><br>            <span class="hljs-keyword">if</span> err, ok := r.(<span class="hljs-type">error</span>); ok &#123;<br>                fmt.Println(<span class="hljs-string">&quot;Recovered error:&quot;</span>, err.Error()) <span class="hljs-comment">// 输出：Recovered error: file not found</span><br>            &#125; <span class="hljs-keyword">else</span> &#123;<br>                fmt.Println(<span class="hljs-string">&quot;Recovered unknown error:&quot;</span>, r)<br>            &#125;<br>        &#125;<br>    &#125;()<br>    mayPanicWithError()<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>3. 捕获范围：仅能捕获当前协程（Goroutine）的 <code>panic</code></strong></p>
+<p><code>recover</code> 无法跨协程捕获 <code>panic</code>—— 每个协程的 <code>panic</code> 只能由该协程内注册的 <code>defer</code>+<code>recover</code> 捕获。</p>
+<p><strong>示例（跨协程 <code>panic</code> 无法捕获）：</strong></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>    <span class="hljs-comment">// 主协程的 defer+recover：只能捕获主协程的 panic</span><br>    <span class="hljs-keyword">defer</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;<br>        <span class="hljs-keyword">if</span> r := <span class="hljs-built_in">recover</span>(); r != <span class="hljs-literal">nil</span> &#123;<br>            fmt.Println(<span class="hljs-string">&quot;主协程 recover:&quot;</span>, r)<br>        &#125;<br>    &#125;()<br><br>    <span class="hljs-comment">// 启动子协程，内部触发 panic</span><br>    <span class="hljs-keyword">go</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;<br>        <span class="hljs-built_in">panic</span>(<span class="hljs-string">&quot;子协程 panic&quot;</span>) <span class="hljs-comment">// 子协程的 panic，主协程的 recover 无法捕获</span><br>    &#125;()<br><br>    time.Sleep(<span class="hljs-number">100</span> * time.Millisecond) <span class="hljs-comment">// 等待子协程执行</span><br>    fmt.Println(<span class="hljs-string">&quot;主协程继续执行&quot;</span>) <span class="hljs-comment">// 不会执行，因为子协程 panic 导致程序崩溃</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>解决方案</strong>：在子协程内部注册 <code>defer+recover</code>：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">go</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;<br>    <span class="hljs-keyword">defer</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;<br>        <span class="hljs-keyword">if</span> r := <span class="hljs-built_in">recover</span>(); r != <span class="hljs-literal">nil</span> &#123;<br>            fmt.Println(<span class="hljs-string">&quot;子协程 recover:&quot;</span>, r) <span class="hljs-comment">// 输出：子协程 recover: 子协程 panic</span><br>        &#125;<br>    &#125;()<br>    <span class="hljs-built_in">panic</span>(<span class="hljs-string">&quot;子协程 panic&quot;</span>)<br>&#125;()<br></code></pre></td></tr></table></figure>
+
+<p><strong>4. 捕获后效果：当前协程恢复正常执行，<code>panic</code> 不再向上传播</strong></p>
+<p><code>recover</code> 捕获 <code>panic</code> 后，当前协程会从 <code>panic</code> 触发点跳转到 <code>defer</code> 函数，执行完 <code>defer</code> 后，协程继续执行（但 <code>panic</code> 触发点后续的代码依然不会执行）。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>    fmt.Println(<span class="hljs-string">&quot;step 1&quot;</span>)<br><br>    <span class="hljs-keyword">defer</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;<br>        <span class="hljs-keyword">if</span> r := <span class="hljs-built_in">recover</span>(); r != <span class="hljs-literal">nil</span> &#123;<br>            fmt.Println(<span class="hljs-string">&quot;recovered:&quot;</span>, r)<br>        &#125;<br>    &#125;()<br><br>    <span class="hljs-built_in">panic</span>(<span class="hljs-string">&quot;a problem&quot;</span>) <span class="hljs-comment">// step 2：触发 panic</span><br><br>    fmt.Println(<span class="hljs-string">&quot;step 3&quot;</span>) <span class="hljs-comment">// 不会执行（被 panic 中断）</span><br>&#125;<br><br><span class="hljs-comment">// 输出：</span><br><span class="hljs-comment">// step 1</span><br><span class="hljs-comment">// recovered: a problem</span><br><span class="hljs-comment">// 程序正常退出（无崩溃）</span><br></code></pre></td></tr></table></figure>
+
+<p><strong><code>recover</code> 的核心使用场景</strong></p>
+<p><code>recover</code> 的设计初衷是「恢复程序的可控执行」，避免因局部异常导致整个程序崩溃，核心场景如下：</p>
+<p><strong>1. 主协程兜底：防止程序因意外 <code>panic</code> 崩溃</strong></p>
+<p>在 <code>main</code> 函数中注册 <code>defer+recover</code>，作为整个程序的「最后一道防线」—— 即使某个子协程忘记处理 <code>panic</code>（或发生不可预期的 <code>panic</code>），主协程的 <code>recover</code> 也能捕获（仅限主协程自身的 <code>panic</code>，子协程需单独处理），确保程序优雅退出（如记录日志、清理资源）。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>    <span class="hljs-keyword">defer</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;<br>        <span class="hljs-keyword">if</span> r := <span class="hljs-built_in">recover</span>(); r != <span class="hljs-literal">nil</span> &#123;<br>            <span class="hljs-comment">// 记录错误日志（实际工作中会用日志框架，如 zap、logrus）</span><br>            fmt.Printf(<span class="hljs-string">&quot;程序发生未预期异常：%v\n&quot;</span>, r)<br>            <span class="hljs-comment">// 清理全局资源（如关闭数据库连接、释放锁）</span><br>            fmt.Println(<span class="hljs-string">&quot;正在清理全局资源...&quot;</span>)<br>        &#125;<br>    &#125;()<br><br>    <span class="hljs-comment">// 执行核心业务逻辑</span><br>    runBusiness()<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">runBusiness</span><span class="hljs-params">()</span></span> &#123;<br>    <span class="hljs-comment">// 业务逻辑中可能触发意外 panic</span><br>    <span class="hljs-built_in">panic</span>(<span class="hljs-string">&quot;意外错误：数据库连接超时&quot;</span>)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>2. 子协程异常隔离：避免单个子协程 <code>panic</code> 导致整个程序崩溃</strong></p>
+<p>在启动子协程时，立即注册 <code>defer+recover</code>，确保子协程的 <code>panic</code> 被隔离在自身范围内，不影响主协程和其他子协程。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">worker</span><span class="hljs-params">(id <span class="hljs-type">int</span>)</span></span> &#123;<br>    <span class="hljs-comment">// 子协程自身的 defer+recover：隔离 panic</span><br>    <span class="hljs-keyword">defer</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;<br>        <span class="hljs-keyword">if</span> r := <span class="hljs-built_in">recover</span>(); r != <span class="hljs-literal">nil</span> &#123;<br>            fmt.Printf(<span class="hljs-string">&quot;子协程 %d 发生异常：%v，已恢复\n&quot;</span>, id, r)<br>        &#125;<br>    &#125;()<br><br>    fmt.Printf(<span class="hljs-string">&quot;子协程 %d 开始工作\n&quot;</span>, id)<br>    <span class="hljs-comment">// 模拟业务逻辑中的 panic</span><br>    <span class="hljs-keyword">if</span> id == <span class="hljs-number">3</span> &#123;<br>        <span class="hljs-built_in">panic</span>(<span class="hljs-string">&quot;处理任务失败&quot;</span>)<br>    &#125;<br>    fmt.Printf(<span class="hljs-string">&quot;子协程 %d 工作完成\n&quot;</span>, id)<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>    <span class="hljs-comment">// 启动 5 个协程，其中第 3 个会触发 panic</span><br>    <span class="hljs-keyword">for</span> i := <span class="hljs-number">1</span>; i &lt;= <span class="hljs-number">5</span>; i++ &#123;<br>        <span class="hljs-keyword">go</span> worker(i)<br>    &#125;<br><br>    time.Sleep(<span class="hljs-number">1</span> * time.Second) <span class="hljs-comment">// 等待所有协程执行</span><br>    fmt.Println(<span class="hljs-string">&quot;主协程继续运行，程序未崩溃&quot;</span>)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>输出结果</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">子协程 1 开始工作<br>子协程 1 工作完成<br>子协程 2 开始工作<br>子协程 2 工作完成<br>子协程 3 开始工作<br>子协程 3 发生异常：处理任务失败，已恢复<br>子协程 4 开始工作<br>子协程 4 工作完成<br>子协程 5 开始工作<br>子协程 5 工作完成<br>主协程继续运行，程序未崩溃<br></code></pre></td></tr></table></figure>
+
+<p><strong>3. 框架 &#x2F; 库的异常处理：为调用者提供稳定的接口</strong></p>
+<p>编写第三方框架或库时，若内部可能发生 <code>panic</code>，需用 <code>recover</code> 捕获，转为 <code>error</code> 类型返回给调用者 —— 避免因库内部的 <code>panic</code> 导致调用者的程序崩溃，提升库的稳定性。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// 库函数：提供给外部调用，内部可能触发 panic</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">ParseJSON</span><span class="hljs-params">(jsonStr <span class="hljs-type">string</span>)</span></span> (<span class="hljs-keyword">map</span>[<span class="hljs-type">string</span>]<span class="hljs-keyword">interface</span>&#123;&#125;, <span class="hljs-type">error</span>) &#123;<br>    <span class="hljs-keyword">defer</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;<br>        <span class="hljs-keyword">if</span> r := <span class="hljs-built_in">recover</span>(); r != <span class="hljs-literal">nil</span> &#123;<br>            <span class="hljs-comment">// 捕获内部 panic，转为 error 返回</span><br>            fmt.Printf(<span class="hljs-string">&quot;解析 JSON 时发生异常：%v\n&quot;</span>, r)<br>            <span class="hljs-comment">// 这里需要用命名返回值，才能在 defer 中修改返回值（后续会讲）</span><br>        &#125;<br>    &#125;()<br><br>    <span class="hljs-comment">// 模拟 JSON 解析（假设 json.Unmarshal 内部可能 panic，实际不会，但示例用）</span><br>    <span class="hljs-keyword">var</span> data <span class="hljs-keyword">map</span>[<span class="hljs-type">string</span>]<span class="hljs-keyword">interface</span>&#123;&#125;<br>    <span class="hljs-keyword">if</span> err := json.Unmarshal([]<span class="hljs-type">byte</span>(jsonStr), &amp;data); err != <span class="hljs-literal">nil</span> &#123;<br>        <span class="hljs-built_in">panic</span>(err) <span class="hljs-comment">// 模拟解析失败触发 panic</span><br>    &#125;<br>    <span class="hljs-keyword">return</span> data, <span class="hljs-literal">nil</span><br>&#125;<br><br><span class="hljs-comment">// 优化后（用命名返回值接收 recover 后的错误）：</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">ParseJSON</span><span class="hljs-params">(jsonStr <span class="hljs-type">string</span>)</span></span> (result <span class="hljs-keyword">map</span>[<span class="hljs-type">string</span>]<span class="hljs-keyword">interface</span>&#123;&#125;, err <span class="hljs-type">error</span>) &#123;<br>    <span class="hljs-keyword">defer</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;<br>        <span class="hljs-keyword">if</span> r := <span class="hljs-built_in">recover</span>(); r != <span class="hljs-literal">nil</span> &#123;<br>            err = fmt.Errorf(<span class="hljs-string">&quot;json parse failed: %v&quot;</span>, r) <span class="hljs-comment">// 修改命名返回值 err</span><br>            result = <span class="hljs-literal">nil</span><br>        &#125;<br>    &#125;()<br><br>    <span class="hljs-keyword">var</span> data <span class="hljs-keyword">map</span>[<span class="hljs-type">string</span>]<span class="hljs-keyword">interface</span>&#123;&#125;<br>    <span class="hljs-keyword">if</span> err := json.Unmarshal([]<span class="hljs-type">byte</span>(jsonStr), &amp;data); err != <span class="hljs-literal">nil</span> &#123;<br>        <span class="hljs-built_in">panic</span>(err)<br>    &#125;<br>    result = data<br>    <span class="hljs-keyword">return</span><br>&#125;<br><br><span class="hljs-comment">// 调用者使用：</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>    jsonStr := <span class="hljs-string">`&#123;&quot;name&quot;: &quot;Alice&quot;, &quot;age&quot;: 20`</span> <span class="hljs-comment">// 不完整的 JSON（会解析失败）</span><br>    data, err := ParseJSON(jsonStr)<br>    <span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>        fmt.Println(<span class="hljs-string">&quot;调用库函数失败：&quot;</span>, err) <span class="hljs-comment">// 输出：调用库函数失败：json parse failed: invalid JSON at end of input</span><br>        <span class="hljs-keyword">return</span><br>    &#125;<br>    fmt.Println(<span class="hljs-string">&quot;解析结果：&quot;</span>, data)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong><code>recover</code> 的避坑指南</strong></p>
+<p><strong>1. 不要滥用 <code>recover</code>：仅捕获「可恢复的异常」</strong></p>
+<p><code>recover</code> 不是「万能的异常屏蔽器」—— 不要用它捕获所有 <code>panic</code>（如逻辑断言失败、配置加载失败等致命错误），否则会掩盖程序的严重 bug，导致问题难以排查。</p>
+<p><strong>推荐原则：</strong></p>
+<ul>
+<li>用 <code>recover</code> 捕获「预期内的、可恢复的异常」（如子协程任务处理失败、第三方接口调用超时）；</li>
+<li>对于「不可恢复的致命错误」（如程序启动时配置加载失败、数据库连接初始化失败），应让 <code>panic</code> 触发程序崩溃，便于及时发现问题。</li>
+</ul>
+<p><strong>2. 注意 <code>recover</code> 与 <code>defer</code> 执行顺序的关系</strong></p>
+<p>若同一函数中注册多个 <code>defer</code> 函数，<code>recover</code> 仅能捕获「在它之前触发的 <code>panic</code>」—— 因为 <code>defer</code> 是后进先出执行的。</p>
+<p><strong>示例：</strong></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>    <span class="hljs-comment">// defer 1：第一个注册，最后执行</span><br>    <span class="hljs-keyword">defer</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;<br>        <span class="hljs-keyword">if</span> r := <span class="hljs-built_in">recover</span>(); r != <span class="hljs-literal">nil</span> &#123;<br>            fmt.Println(<span class="hljs-string">&quot;recover 1:&quot;</span>, r) <span class="hljs-comment">// 能捕获 panic</span><br>        &#125;<br>    &#125;()<br><br>    <span class="hljs-comment">// defer 2：第二个注册，先执行</span><br>    <span class="hljs-keyword">defer</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;<br>        fmt.Println(<span class="hljs-string">&quot;defer 2 执行&quot;</span>)<br>        <span class="hljs-comment">// 这里没有 recover，panic 会继续向上传播</span><br>    &#125;()<br><br>    <span class="hljs-built_in">panic</span>(<span class="hljs-string">&quot;a problem&quot;</span>)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>输出结果</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">defer 2 执行<br>recover 1: a problem<br></code></pre></td></tr></table></figure>
+
+<p><strong>示例：</strong></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> main<br><br><span class="hljs-keyword">import</span> <span class="hljs-string">&quot;fmt&quot;</span><br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>    <span class="hljs-comment">// 1. defer1：第一个注册，最后执行（保留 recover，但会失效）</span><br>    <span class="hljs-keyword">defer</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;<br>        fmt.Println(<span class="hljs-string">&quot;=== defer1 执行（第一个注册，最后执行）===&quot;</span>)<br>        <span class="hljs-keyword">if</span> r := <span class="hljs-built_in">recover</span>(); r != <span class="hljs-literal">nil</span> &#123; <span class="hljs-comment">// 此处 r 会是 nil，因为 panic 已被 defer3 捕获</span><br>            fmt.Println(<span class="hljs-string">&quot;defer1 中 recover 捕获到：&quot;</span>, r)<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            fmt.Println(<span class="hljs-string">&quot;defer1 中 recover：未捕获到 panic（已被前面的 defer 捕获）&quot;</span>)<br>        &#125;<br>    &#125;()<br><br>    <span class="hljs-comment">// 2. defer2：第二个注册，中间执行（无 recover）</span><br>    <span class="hljs-keyword">defer</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;<br>        fmt.Println(<span class="hljs-string">&quot;=== defer2 执行（第二个注册，中间执行）===&quot;</span>)<br>    &#125;()<br><br>    <span class="hljs-comment">// 3. defer3：第三个注册，最先执行（添加 recover）</span><br>    <span class="hljs-keyword">defer</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;<br>        fmt.Println(<span class="hljs-string">&quot;=== defer3 执行（第三个注册，最先执行）===&quot;</span>)<br>        <span class="hljs-keyword">if</span> r := <span class="hljs-built_in">recover</span>(); r != <span class="hljs-literal">nil</span> &#123; <span class="hljs-comment">// 优先捕获 panic</span><br>            fmt.Println(<span class="hljs-string">&quot;defer3 中 recover 捕获到：&quot;</span>, r)<br>        &#125;<br>    &#125;()<br><br>    <span class="hljs-comment">// 触发 panic</span><br>    <span class="hljs-built_in">panic</span>(<span class="hljs-string">&quot;我是一个 panic！&quot;</span>)<br><br>    fmt.Println(<span class="hljs-string">&quot;panic 后的代码&quot;</span>) <span class="hljs-comment">// 不会执行</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>输出结果：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">=== defer3 执行（第三个注册，最先执行）===<br>defer3 中 recover 捕获到： 我是一个 panic！<br>=== defer2 执行（第二个注册，中间执行）===<br>=== defer1 执行（第一个注册，最后执行）===<br>defer1 中 recover：未捕获到 panic（已被前面的 defer 捕获）<br></code></pre></td></tr></table></figure>
+
+<p><strong><code>recover</code> 优先捕获 <code>panic</code>，同一个 <code>panic</code> 只能被捕获一次，<code>recover</code> 不影响后续 <code>defer</code> 的执行：</strong></p>
+<p><strong>3. <code>recover</code> 无法捕获 <code>os.Exit</code> 触发的退出</strong></p>
+<p><code>os.Exit(code)</code> 会直接终止整个程序，跳过所有 <code>defer</code> 函数，因此 <code>recover</code> 无法捕获。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Go/" class="category-chain-item">Go</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Go%E5%AD%A6%E4%B9%A0/" class="print-no-link">#Go学习</a>
+      
+    </div>
+  
+</div>
+
+
+              
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2025/11/11/GoByExample(mid)/" title="Go语言基础学习（中）">
+                        <span class="hidden-mobile">Go语言基础学习（中）</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       基于 <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a>、 <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
