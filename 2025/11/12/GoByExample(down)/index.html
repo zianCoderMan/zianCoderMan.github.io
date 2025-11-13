@@ -27,7 +27,7 @@
 <meta property="og:description" content="本文根据《Go by Example》进行学习，参考资料出自https:&#x2F;&#x2F;gobyexample-cn.github.io&#x2F; 上篇包括Go语言基础部分，从Hello World到错误处理；中篇包括协程与通道；下篇包括各种工具类的使用。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2025-11-12T01:35:00.000Z">
-<meta property="article:modified_time" content="2025-11-12T08:06:33.114Z">
+<meta property="article:modified_time" content="2025-11-13T05:24:23.163Z">
 <meta property="article:author" content="zianCoderMan">
 <meta property="article:tag" content="Go学习">
 <meta name="twitter:card" content="summary_large_image">
@@ -223,7 +223,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          15k 字
+          30k 字
         
       </span>
     
@@ -234,7 +234,7 @@
         
         
         
-          124 分钟
+          249 分钟
         
       </span>
     
@@ -1262,6 +1262,911 @@
 </ul>
 <p><strong>4.错误处理</strong>：示例中省略了错误处理（<code>_</code> 忽略错误），实际开发中必须处理 <code>Marshal</code>&#x2F;<code>Unmarshal</code> 的返回错误（如 JSON 语法错误、类型不匹配）：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// 正确示例：处理反序列化错误</span><br><span class="hljs-keyword">if</span> err := json.Unmarshal(byt, &amp;dat); err != <span class="hljs-literal">nil</span> &#123;<br>    fmt.Printf(<span class="hljs-string">&quot;反序列化失败：%v\n&quot;</span>, err)<br>    <span class="hljs-keyword">return</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="11-XML"><a href="#11-XML" class="headerlink" title="11.XML"></a>11.XML</h2><p><strong>核心概念</strong></p>
+<ol>
+<li><strong>XML 序列化（Marshal）</strong>：将 Go 结构体转换为 XML 格式的字节切片（<code>[]byte</code>），支持格式化输出（缩进、换行）；</li>
+<li><strong>XML 反序列化（Unmarshal）</strong>：将 XML 字节切片转换为 Go 结构体，通过「结构体标签」映射 XML 元素 &#x2F; 属性；</li>
+<li><strong>XML 结构体标签</strong>：Go 结构体字段后添加 <code>xml:&quot;key,option&quot;</code> 标记，用于控制 XML 生成规则（如元素名、属性、嵌套路径），是 XML 处理的核心；</li>
+<li><strong>核心函数：</strong><ul>
+<li><code>xml.Marshal(v interface&#123;&#125;) ([]byte, error)</code>：序列化，返回紧凑格式的 XML 字节（无缩进）；</li>
+<li><code>xml.MarshalIndent(v interface&#123;&#125;, prefix, indent string)</code>：序列化，返回带缩进的格式化 XML（<code>prefix</code> 是每行前缀，<code>indent</code> 是缩进字符，如空格、制表符）；</li>
+<li><code>xml.Unmarshal(data []byte, v interface&#123;&#125;) error</code>：反序列化，将 XML 字节解析到目标结构体（需传指针）；</li>
+<li><code>xml.Header</code>：内置常量，包含 XML 声明（<code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</code>），可直接拼接在 XML 字节前。</li>
+</ul>
+</li>
+</ol>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> main<br><br><span class="hljs-keyword">import</span> (<br>    <span class="hljs-string">&quot;encoding/xml&quot;</span><br>    <span class="hljs-string">&quot;fmt&quot;</span><br>)<br><br><span class="hljs-comment">// 定义 Plant 结构体：映射 XML 元素 &lt;plant&gt;</span><br><span class="hljs-keyword">type</span> Plant <span class="hljs-keyword">struct</span> &#123;<br>    XMLName xml.Name <span class="hljs-string">`xml:&quot;plant&quot;`</span>   <span class="hljs-comment">// 指定 XML 根元素名（必须是 xml.Name 类型）</span><br>    Id      <span class="hljs-type">int</span>      <span class="hljs-string">`xml:&quot;id,attr&quot;`</span> <span class="hljs-comment">// 映射 XML 属性 id（格式：xml:&quot;属性名,attr&quot;）</span><br>    Name    <span class="hljs-type">string</span>   <span class="hljs-string">`xml:&quot;name&quot;`</span>    <span class="hljs-comment">// 映射 XML 子元素 &lt;name&gt;</span><br>    Origin  []<span class="hljs-type">string</span> <span class="hljs-string">`xml:&quot;origin&quot;`</span>  <span class="hljs-comment">// 映射多个 XML 子元素 &lt;origin&gt;（切片对应重复元素）</span><br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(p Plant)</span></span> String() <span class="hljs-type">string</span> &#123;<br>    <span class="hljs-keyword">return</span> fmt.Sprintf(<span class="hljs-string">&quot;Plant id=%v, name=%v, origin=%v&quot;</span>,<br>       p.Id, p.Name, p.Origin)<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>    <span class="hljs-comment">// 1. 创建 Plant 实例</span><br>    coffee := &amp;Plant&#123;Id: <span class="hljs-number">27</span>, Name: <span class="hljs-string">&quot;Coffee&quot;</span>&#125;<br>    coffee.Origin = []<span class="hljs-type">string</span>&#123;<span class="hljs-string">&quot;Ethiopia&quot;</span>, <span class="hljs-string">&quot;Brazil&quot;</span>&#125;<br><br>    <span class="hljs-comment">// 2. 带缩进的序列化（推荐，XML 更易读）</span><br>    <span class="hljs-comment">// 参数：目标结构体、每行前缀（&quot;&quot; 空）、缩进字符（&quot;  &quot; 两个空格）</span><br>    out, _ := xml.MarshalIndent(coffee, <span class="hljs-string">&quot; &quot;</span>, <span class="hljs-string">&quot;  &quot;</span>)<br>    fmt.Println(<span class="hljs-type">string</span>(out))<br><br>    <span class="hljs-comment">// 3. 拼接 XML 声明（xml.Header）</span><br>    <span class="hljs-comment">// xml.Header 是内置常量：&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span><br>    fmt.Println(xml.Header + <span class="hljs-type">string</span>(out))<br><br>    <span class="hljs-comment">// 定义目标结构体变量（空实例）</span><br>    <span class="hljs-keyword">var</span> p Plant<br>    <span class="hljs-comment">// 反序列化：将 XML 字节（out）解析到 p（需传指针 &amp;p）</span><br>    <span class="hljs-keyword">if</span> err := xml.Unmarshal(out, &amp;p); err != <span class="hljs-literal">nil</span> &#123;<br>       <span class="hljs-built_in">panic</span>(err)<br>    &#125;<br>    fmt.Println(p) <span class="hljs-comment">// 打印结构体（调用自定义的 String() 方法）</span><br><br>    <span class="hljs-comment">// 1. 创建另一个 Plant 实例（Tomato）</span><br>    tomato := &amp;Plant&#123;Id: <span class="hljs-number">81</span>, Name: <span class="hljs-string">&quot;Tomato&quot;</span>&#125;<br>    tomato.Origin = []<span class="hljs-type">string</span>&#123;<span class="hljs-string">&quot;Mexico&quot;</span>, <span class="hljs-string">&quot;California&quot;</span>&#125;<br><br>    <span class="hljs-comment">// 2. 定义嵌套结构体 Nesting：映射多层 XML 结构</span><br>    <span class="hljs-keyword">type</span> Nesting <span class="hljs-keyword">struct</span> &#123;<br>       XMLName xml.Name <span class="hljs-string">`xml:&quot;nesting&quot;`</span><br>       <span class="hljs-comment">// 关键：Plants 字段映射到 XML 路径 parent&gt;child&gt;plant（多层嵌套）</span><br>       Plants []*Plant <span class="hljs-string">`xml:&quot;parent&gt;child&gt;plant&quot;`</span><br>    &#125;<br><br>    <span class="hljs-comment">// 3. 创建嵌套结构体实例</span><br>    nesting := &amp;Nesting&#123;&#125;<br>    nesting.Plants = []*Plant&#123;coffee, tomato&#125;<br><br>    <span class="hljs-comment">// 4. 序列化嵌套结构体（带缩进）</span><br>    out, _ = xml.MarshalIndent(nesting, <span class="hljs-string">&quot; &quot;</span>, <span class="hljs-string">&quot;  &quot;</span>)<br>    fmt.Println(<span class="hljs-type">string</span>(out))<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>核心 XML 标签大全</strong></p>
+<p>除了代码中用到的标签，补充常用 XML 标签规则，覆盖更多场景：</p>
+<table>
+<thead>
+<tr>
+<th>结构体字段定义</th>
+<th>XML 标签格式</th>
+<th>序列化后效果</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Field string</code></td>
+<td>无标签</td>
+<td><code>&lt;Field&gt;value&lt;/Field&gt;</code></td>
+<td>默认映射（元素名 &#x3D; 字段名）</td>
+</tr>
+<tr>
+<td><code>Field string </code>xml:”elem”&#96;</td>
+<td><code>xml:&quot;elem&quot;</code></td>
+<td><code>&lt;elem&gt;value&lt;/elem&gt;</code></td>
+<td>自定义 XML 元素名</td>
+</tr>
+<tr>
+<td><code>Field int </code>xml:”id,attr”&#96;</td>
+<td><code>xml:&quot;name,attr&quot;</code></td>
+<td><code>&lt;root id=&quot;value&quot;&gt;</code></td>
+<td>映射为 XML 属性</td>
+</tr>
+<tr>
+<td><code>Field []string </code>xml:”tag”&#96;</td>
+<td><code>xml:&quot;tag&quot;</code></td>
+<td><code>&lt;tag&gt;v1&lt;/tag&gt;&lt;tag&gt;v2&lt;/tag&gt;</code></td>
+<td>切片映射为多个同名元素</td>
+</tr>
+<tr>
+<td><code>Field string </code>xml:”,chardata”&#96;</td>
+<td><code>xml:&quot;,chardata&quot;</code></td>
+<td><code>&lt;root&gt;value&lt;/root&gt;</code>（无子元素，直接文本）</td>
+<td>字段映射为元素的文本内容（而非子元素 &#x2F; 属性）</td>
+</tr>
+<tr>
+<td><code>Field string </code>xml:”,innerxml”&#96;</td>
+<td><code>xml:&quot;,innerxml&quot;</code></td>
+<td><code>&lt;root&gt;&lt;a&gt;v&lt;/a&gt;&lt;/root&gt;</code>（直接嵌入 XML 片段）</td>
+<td>字段值为原始 XML 片段，序列化时直接嵌入</td>
+</tr>
+<tr>
+<td><code>Field string </code>xml:”-“&#96;</td>
+<td><code>xml:&quot;-&quot;</code></td>
+<td>无对应 XML 元素 &#x2F; 属性</td>
+<td>忽略该字段（不序列化也不反序列化）</td>
+</tr>
+<tr>
+<td><code>Field []*Plant </code>xml:”a&gt;b&gt;c”&#96;</td>
+<td><code>xml:&quot;a&gt;b&gt;c&quot;</code></td>
+<td><code>&lt;a&gt;&lt;b&gt;&lt;c&gt;...&lt;/c&gt;&lt;/b&gt;&lt;/a&gt;</code></td>
+<td>映射多层嵌套路径</td>
+</tr>
+</tbody></table>
+<p><strong>关键注意点</strong></p>
+<ol>
+<li>**结构体字段必须导出：**首字母大写，否则<code>xml</code>包无法访问，序列化 &#x2F; 反序列化时忽略该字段；<ul>
+<li>错误示例：<code>type Plant struct &#123; id int &#125;</code> → 序列化后无 <code>id</code> 属性；</li>
+<li>正确示例：<code>type Plant struct &#123; Id int &quot;xml:id,attr&quot; &#125;</code> → 正常生成 <code>id</code> 属性。</li>
+</ul>
+</li>
+<li><strong>属性标签必须带 <code>,attr</code></strong>：若写成 <code>xml:&quot;id&quot;</code>（无 <code>,attr</code>），会生成子元素 <code>&lt;id&gt;</code> 而非属性 <code>id</code>；</li>
+<li><strong>切片对应重复元素</strong>：只有切片字段（<code>[]T</code>）才能映射 XML 中的重复元素（如多个 <code>&lt;origin&gt;</code>），非切片字段会只取最后一个匹配元素；</li>
+<li><strong>嵌套路径标签的限制</strong>：<code>xml:&quot;a&gt;b&gt;c&quot;</code> 中的路径必须是「直接父子关系」，且只能用于子元素（不能用于属性）；</li>
+<li><strong>编码问题</strong>：<code>xml.Header</code> 默认编码是 <code>UTF-8</code>，若需其他编码（如 <code>GBK</code>），需手动修改声明（如 <code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;GBK&quot;?&gt;</code>）；</li>
+<li><strong>错误处理</strong>：示例中省略了错误处理（<code>_</code> 忽略错误），实际开发中必须处理 <code>Marshal</code>&#x2F;<code>Unmarshal</code> 的返回错误（如 XML 语法错误、类型不匹配）。</li>
+</ol>
+<h2 id="12-时间"><a href="#12-时间" class="headerlink" title="12.时间"></a>12.时间</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> main<br><br><span class="hljs-keyword">import</span> (<br>	<span class="hljs-string">&quot;fmt&quot;</span><br>	<span class="hljs-string">&quot;time&quot;</span><br>)<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>	p := fmt.Println<br><br>	<span class="hljs-comment">// 功能：获取当前「本地时间」（包含时区、纳秒精度），返回 time.Time 类型</span><br>	now := time.Now()<br>	p(now) <span class="hljs-comment">// 输出格式：年-月-日 时:分:秒.纳秒 时区 额外信息（m=+... 是相对于程序启动的时间）</span><br><br>	<span class="hljs-comment">// 功能：构造指定日期时间的 time.Time 实例，参数顺序：年、月、日、时、分、秒、纳秒、时区</span><br>	then := time.Date(<br>		<span class="hljs-number">2009</span>, <span class="hljs-number">11</span>, <span class="hljs-number">17</span>, <span class="hljs-number">20</span>, <span class="hljs-number">34</span>, <span class="hljs-number">58</span>, <span class="hljs-number">651387237</span>, time.UTC)<br>	p(then)<br><br>	<span class="hljs-comment">// 从 time.Time 实例中提取年、月、日、时、分、秒、纳秒、时区、星期等字段：</span><br>	p(then.Year())<br>	p(then.Month())<br>	p(then.Day())<br>	p(then.Hour())<br>	p(then.Minute())<br>	p(then.Second())<br>	p(then.Nanosecond())<br>	p(then.Location())<br>	p(then.Weekday())<br><br>	<span class="hljs-comment">// 时间比较：Before()/After()/Equal()</span><br>	p(then.Before(now)) <span class="hljs-comment">// bool：then 是否在 now 之前？（示例输出 true）</span><br>	p(then.After(now))  <span class="hljs-comment">// bool：then 是否在 now 之后？（示例输出 false）</span><br>	p(then.Equal(now))  <span class="hljs-comment">// bool：then 与 now 是否完全相等？（需时间戳、时区都一致，示例输出 false）</span><br><br>	<span class="hljs-comment">// 时间差计算：Sub() 与 time.Duration</span><br>	<span class="hljs-comment">// 用 t.Sub(u) 计算 t - u 的时间差，返回 time.Duration 类型（表示时间段），支持换算为小时、分钟、秒、纳秒：</span><br>	diff := now.Sub(then) <span class="hljs-comment">// 计算 now - then 的时间差（time.Duration 类型）</span><br>	p(diff)<br><br>	<span class="hljs-comment">// 时间差换算为不同单位（返回 float64 类型）</span><br>	p(diff.Hours())<br>	p(diff.Minutes())<br>	p(diff.Seconds())<br>	p(diff.Nanoseconds())<br><br>	<span class="hljs-comment">// 时间增减：Add()</span><br>	<span class="hljs-comment">// 在 time.Time 实例基础上增减指定时间段（time.Duration 类型），返回新的 time.Time 实例（原实例不变，因为 time.Time 是不可变类型）</span><br>	p(then.Add(diff))  <span class="hljs-comment">// then + diff = now（示例输出与 now 一致，时区自动适配）</span><br>	p(then.Add(-diff)) <span class="hljs-comment">// then - diff = 更早的时间</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>关键注意点</strong></p>
+<ol>
+<li><p><strong><code>time.Time</code> 是不可变类型</strong>：</p>
+<ul>
+<li>所有修改时间的方法（<code>Add()</code>、<code>UTC()</code>、<code>Local()</code> 等）都会返回新的 <code>time.Time</code> 实例，原实例不会改变；</li>
+<li>错误示例：<code>now.Add(1*time.Hour)</code> → 不会修改 <code>now</code>，需赋值给新变量：<code>later := now.Add(1*time.Hour)</code>。</li>
+</ul>
+</li>
+<li><p><strong>时区处理是核心坑点</strong>：</p>
+<ul>
+<li>不同时区的时间比较会自动转换（<code>Before()</code>&#x2F;<code>After()</code> 无需手动处理）；</li>
+<li>构造时间时必须指定时区（否则默认 <code>time.UTC</code>），避免时区混淆（如北京时间 12 点 vs UTC 12 点）；</li>
+<li>本地时区 <code>time.Local</code> 依赖系统环境，跨平台 &#x2F; 跨服务器可能不一致，推荐用 <code>time.UTC</code> 或显式指定时区（如 <code>time.FixedZone(&quot;CST&quot;, 8*3600)</code> 表示 UTC+8）。</li>
+</ul>
+</li>
+<li><p><strong>字符串与时间互转的格式符</strong>（补充高频用法）：</p>
+<ul>
+<li>Go 的时间格式符是「固定参考时间 <code>2006-01-02 15:04:05</code>」（不是 <code>YYYY-MM-DD</code>），必须严格对应</li>
+</ul>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// 字符串转时间</span><br>str := <span class="hljs-string">&quot;2025-11-13 15:30:00&quot;</span><br>t, _ := time.Parse(<span class="hljs-string">&quot;2006-01-02 15:04:05&quot;</span>, str) <span class="hljs-comment">// 格式符必须与字符串格式一致</span><br><br><span class="hljs-comment">// 时间转字符串</span><br>fmt.Println(t.Format(<span class="hljs-string">&quot;2006-01-02&quot;</span>)) <span class="hljs-comment">// 输出：2025-11-13</span><br>fmt.Println(t.Format(<span class="hljs-string">&quot;15:04:05&quot;</span>))   <span class="hljs-comment">// 输出：15:30:00</span><br></code></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="13-时间戳"><a href="#13-时间戳" class="headerlink" title="13.时间戳"></a>13.时间戳</h2><p><strong>核心概念</strong></p>
+<ol>
+<li><strong>时间戳（Timestamp）</strong>：从「Unix 纪元（1970-01-01 00:00:00 UTC）」到目标时间的「累计时长」，是衡量时间的标准化方式（跨语言 &#x2F; 跨平台通用）；</li>
+<li><strong>Go 中时间戳的三种精度（核心区别在单位）：</strong><ul>
+<li>秒级时间戳（<code>Unix</code>）：单位是「秒」，忽略毫秒、微秒、纳秒，精度最低；</li>
+<li>毫秒级时间戳：单位是「毫秒」（1 秒 &#x3D; 1000 毫秒），需通过纳秒级换算得到；</li>
+<li>纳秒级时间戳（<code>UnixNano</code>）：单位是「纳秒」（1 秒 &#x3D; 1e9 纳秒），<code>time</code> 包原生支持，精度最高；</li>
+</ul>
+</li>
+<li><strong>核心函数：</strong><ul>
+<li><code>t.Unix()</code>：从 <code>time.Time</code> 实例获取「秒级时间戳」（返回 <code>int64</code> 类型）；</li>
+<li><code>t.UnixNano()</code>：从 <code>time.Time</code> 实例获取「纳秒级时间戳」（返回 <code>int64</code> 类型）；</li>
+<li><code>time.Unix(sec int64, nsec int64)</code>：从「秒级时间戳 + 纳秒偏移」构造 <code>time.Time</code> 实例（<code>nsec</code> 范围 0-999999999）。</li>
+</ul>
+</li>
+</ol>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> main<br><br><span class="hljs-keyword">import</span> (<br>    <span class="hljs-string">&quot;fmt&quot;</span><br>    <span class="hljs-string">&quot;time&quot;</span><br>)<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br><br>    <span class="hljs-comment">// 获取当前本地时间（time.Time 类型，包含完整时间信息）</span><br>    now := time.Now()<br><br>    <span class="hljs-comment">// 获取「秒级时间戳」：Unix 纪元到 now 的总秒数（忽略毫秒/纳秒）</span><br>    secs := now.Unix()<br><br>    <span class="hljs-comment">//  获取「纳秒级时间戳」：Unix 纪元到 now 的总纳秒数（完整精度）</span><br>    nanos := now.UnixNano()<br>    fmt.Println(now)<br><br>    <span class="hljs-comment">// 毫秒级时间戳 = 纳秒级时间戳 / 1e6（1 毫秒 = 1000000 纳秒）</span><br>    millis := nanos / <span class="hljs-number">1000000</span><br>    fmt.Println(secs)<br>    fmt.Println(millis)<br>    fmt.Println(nanos)<br><br>    <span class="hljs-comment">// 从「秒级时间戳」构造时间：第二个参数是「纳秒偏移」（0 表示无偏移）</span><br>    <span class="hljs-comment">// 效果：仅保留秒级精度，毫秒/纳秒部分为 0</span><br>    fmt.Println(time.Unix(secs, <span class="hljs-number">0</span>))<br>    fmt.Println(time.Unix(<span class="hljs-number">0</span>, nanos))<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="14-时间的格式化和解析"><a href="#14-时间的格式化和解析" class="headerlink" title="14.时间的格式化和解析"></a>14.时间的格式化和解析</h2><p><strong>核心规则</strong></p>
+<p>Go 的时间格式化 &#x2F; 解析和其他语言（如 Java 的 <code>yyyy-MM-dd</code>）完全不同，<strong>核心规则是：用「固定参考时间」的格式作为模板，而非占位符</strong>。</p>
+<ul>
+<li>固定参考时间：<code>Mon Jan 2 15:04:05 MST 2006</code>（记忆口诀：<strong>1 月 2 日 3 点 4 分 5 秒 6 年</strong>，对应 <code>1 2 3 4 5 6</code>，再加上时区 <code>MST</code>）；</li>
+<li>格式化（<code>t.Format(layout)</code>）：将 <code>time.Time</code> 实例按 <code>layout</code>（参考时间的格式模板）转为字符串；</li>
+<li>解析（<code>time.Parse(layout, str)</code>）：将字符串 <code>str</code> 按 <code>layout</code> 模板解析为 <code>time.Time</code> 实例；</li>
+<li>关键：<code>layout</code> 必须和目标字符串的「格式完全对应」（包括空格、标点、大小写、数字位数），否则格式化 &#x2F; 解析会出错或返回错误。</li>
+</ul>
+<p>常用预定义格式补充：</p>
+<table>
+<thead>
+<tr>
+<th>预定义常量</th>
+<th>格式模板</th>
+<th>输出示例</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>time.RFC3339</code></td>
+<td><code>2006-01-02T15:04:05Z07:00</code></td>
+<td><code>2025-11-13T17:20:30+08:00</code></td>
+<td>接口、日志（跨系统兼容）</td>
+</tr>
+<tr>
+<td><code>time.RFC1123</code></td>
+<td><code>Mon, 02 Jan 2006 15:04:05 MST</code></td>
+<td><code>Thu, 13 Nov 2025 17:20:30 CST</code></td>
+<td>HTTP 头部时间格式</td>
+</tr>
+<tr>
+<td><code>time.ANSIC</code></td>
+<td><code>Mon Jan _2 15:04:05 2006</code></td>
+<td><code>Thu Nov 13 17:20:30 2025</code></td>
+<td>通用日志格式</td>
+</tr>
+</tbody></table>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> main<br><br><span class="hljs-keyword">import</span> (<br>    <span class="hljs-string">&quot;fmt&quot;</span><br>    <span class="hljs-string">&quot;time&quot;</span><br>)<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>    p := fmt.Println<br><br>    t := time.Now()<br>    <span class="hljs-comment">// 预定义格式 RFC3339（国际标准格式，含时区，常用于接口/日志）</span><br>    p(t.Format(time.RFC3339))<br><br>    <span class="hljs-comment">// 解析 RFC3339 格式的字符串（格式必须完全匹配）</span><br>    t1, e := time.Parse(<br>       time.RFC3339,<br>       <span class="hljs-string">&quot;2012-11-01T22:08:41+00:00&quot;</span>)<br>    p(t1)<br><br>    <span class="hljs-comment">// 12小时制（3=15点→下午3点，PM 区分上/下午）</span><br>    p(t.Format(<span class="hljs-string">&quot;3:04PM&quot;</span>))<br><br>    <span class="hljs-comment">// 完整自定义格式（星期 月 日 时:分:秒 年）</span><br>    <span class="hljs-comment">//  _2：日期占2位，不足补空格（如1号→&quot; 1&quot;）；若用02→不足补0（如1号→&quot;01&quot;）</span><br>    p(t.Format(<span class="hljs-string">&quot;Mon Jan _2 15:04:05 2006&quot;</span>))<br>    <span class="hljs-comment">// 带微秒和时区的格式（.999999 表示6位微秒，-07:00 表示时区偏移）</span><br>    p(t.Format(<span class="hljs-string">&quot;2006-01-02T15:04:05.999999-07:00&quot;</span>))<br><br>    <span class="hljs-comment">// 格式模板：12小时制（3=12小时制小时，04=分钟，PM=上/下午）</span><br>    form := <span class="hljs-string">&quot;3 04 PM&quot;</span><br>    t2, e := time.Parse(form, <span class="hljs-string">&quot;8 41 PM&quot;</span>)<br>    p(t2)<br><br>    fmt.Printf(<span class="hljs-string">&quot;%d-%02d-%02dT%02d:%02d:%02d-00:00\n&quot;</span>,<br>       t.Year(), t.Month(), t.Day(),<br>       t.Hour(), t.Minute(), t.Second())<br><br>    ansic := <span class="hljs-string">&quot;Mon Jan _2 15:04:05 2006&quot;</span><br>    _, e = time.Parse(ansic, <span class="hljs-string">&quot;8:41PM&quot;</span>)<br>    p(e)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>核心函数 &#x2F; 用法总结</strong></p>
+<table>
+<thead>
+<tr>
+<th>操作需求</th>
+<th>函数 &#x2F; 代码示例</th>
+<th>关键说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>时间→字符串（预定义格式）</td>
+<td><code>t.Format(time.RFC3339)</code></td>
+<td>推荐，跨系统兼容，无需记忆模板</td>
+</tr>
+<tr>
+<td>时间→字符串（自定义格式）</td>
+<td><code>t.Format(&quot;2006-01-02 15:04:05&quot;)</code>（24 小时制）、<code>t.Format(&quot;2006-01-02 3:04PM&quot;)</code>（12 小时制）</td>
+<td>严格遵循参考时间模板 <code>2006-01-02 15:04:05</code></td>
+</tr>
+<tr>
+<td>字符串→时间（预定义格式）</td>
+<td><code>time.Parse(time.RFC3339, &quot;2025-11-13T17:20:30+08:00&quot;)</code></td>
+<td>字符串格式必须和预定义格式完全一致</td>
+</tr>
+<tr>
+<td>字符串→时间（自定义格式）</td>
+<td><code>time.Parse(&quot;2006-01-02 15:04:05&quot;, &quot;2025-11-13 17:20:30&quot;)</code></td>
+<td>模板和字符串的空格、标点、位数必须匹配</td>
+</tr>
+<tr>
+<td>手动格式化（简单场景）</td>
+<td><code>fmt.Printf(&quot;%04d-%02d-%02d&quot;, t.Year(), t.Month(), t.Day())</code></td>
+<td>需手动补零，灵活度低</td>
+</tr>
+</tbody></table>
+<p><strong>关键注意点</strong></p>
+<ol>
+<li><strong>模板是 “参考时间” 而非占位符</strong>：<ul>
+<li>错误示例：用 <code>yyyy-MM-dd</code> 作为模板（其他语言的占位符）→ 解析 &#x2F; 格式化完全失败；</li>
+<li>正确示例：必须用 <code>2006-01-02</code> 表示「年 - 月 - 日」，<code>15:04:05</code> 表示「时：分: 秒」。</li>
+</ul>
+</li>
+<li><strong>格式匹配必须 “严丝合缝”</strong>：<ul>
+<li>空格、标点、大小写都要一致（如模板是 <code>3:04 PM</code>，字符串不能是 <code>3:41PM</code>（少空格）或 <code>3:41 pm</code>（小写 pm））；</li>
+<li>数字位数一致（如模板是 <code>04</code>（2 位分钟），字符串不能是 <code>4</code>（1 位分钟），需补零为 <code>04</code>）。</li>
+</ul>
+</li>
+<li><strong>解析时的 “零时间” 填充</strong>：<ul>
+<li>若字符串中缺失年、月、日、时等字段，解析后会填充默认值（年 &#x3D; 0000，月 &#x3D; 01，日 &#x3D; 01，时 &#x3D; 00 等）；</li>
+<li>若需避免零时间，需确保字符串包含完整字段，或解析后手动修正（如 <code>t2 = t2.AddDate(2025, 0, 0)</code> 补全年份）。</li>
+</ul>
+</li>
+<li><strong>时区处理</strong>：<ul>
+<li>格式化时，<code>Format</code> 会默认使用 <code>time.Time</code> 实例的时区（如 <code>time.Now()</code> 是本地时区）；</li>
+<li>解析时，若字符串不含时区（如 <code>2025-11-13 17:20:30</code>），解析后的 <code>time.Time</code> 时区为 <code>UTC</code>（默认），需手动转换为本地时区：<code>t.Local()</code>。</li>
+</ul>
+</li>
+<li><strong>错误处理不能少</strong>：<ul>
+<li>解析用户输入、接口返回的时间字符串时，必须处理 <code>Parse</code> 的返回错误（如格式错误、非法日期），避免程序 panic；</li>
+</ul>
+</li>
+</ol>
+<h2 id="15-随机数"><a href="#15-随机数" class="headerlink" title="15.随机数"></a>15.随机数</h2><p><strong>核心概念</strong></p>
+<ol>
+<li><strong>伪随机数</strong>：<code>math/rand</code> 生成的是「伪随机数」—— 基于一个初始值（称为「种子（Seed）」），通过固定算法计算得出的序列。相同种子会生成完全相同的随机数序列（可复现）；</li>
+<li><strong>种子</strong>：随机数生成的「初始密钥」，默认种子是 <code>1</code>（固定值），所以默认生成的随机数序列是固定的；</li>
+<li><strong>核心组件：</strong><ul>
+<li><code>rand.Source</code>：随机数「源」，封装了种子和随机数生成算法（是 <code>rand.Rand</code> 的底层依赖）；</li>
+<li><code>rand.Rand</code>：随机数生成器实例，通过 <code>rand.New(source)</code> 创建，可重复调用方法生成随机数（线程安全）；</li>
+</ul>
+</li>
+<li><strong>核心函数 &#x2F; 方法：</strong><ul>
+<li><code>rand.Intn(n int)</code>：生成 <code>[0, n)</code> 区间的整数随机数（n 必须大于 0）；</li>
+<li><code>rand.Float64()</code>：生成 <code>[0.0, 1.0)</code> 区间的浮点数随机数；</li>
+<li><code>rand.NewSource(seed int64)</code>：创建随机数源（传入 64 位种子）；</li>
+<li><code>rand.New(source Source)</code>：创建随机数生成器实例（基于源）。</li>
+</ul>
+</li>
+</ol>
+<p><strong>动态种子保随机，固定种子保复现，安全场景用 crypto&#x2F;rand</strong></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> main<br><br><span class="hljs-keyword">import</span> (<br>    <span class="hljs-string">&quot;fmt&quot;</span><br>    <span class="hljs-string">&quot;math/rand&quot;</span><br>    <span class="hljs-string">&quot;time&quot;</span><br>)<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>    <span class="hljs-comment">// 生成 [0, 100) 区间的整数随机数（2个）</span><br>    <span class="hljs-comment">// 默认种子是 1（固定值），所以每次运行程序都会生成「完全相同的随机数序列」</span><br>    <span class="hljs-comment">// 这不是真正的随机，仅适合测试场景，不适合生产环境；</span><br>    fmt.Print(rand.Intn(<span class="hljs-number">100</span>), <span class="hljs-string">&quot;,&quot;</span>)<br>    fmt.Print(rand.Intn(<span class="hljs-number">100</span>))<br>    fmt.Println()<br><br>    <span class="hljs-comment">// 生成 [0.0, 1.0) 区间的浮点数随机数</span><br>    fmt.Println(rand.Float64())<br><br>    <span class="hljs-comment">// 生成 [5.0, 10.0) 区间的浮点数随机数（公式：min + rand.Float64()*(max-min)）</span><br>    fmt.Print((rand.Float64()*<span class="hljs-number">5</span>)+<span class="hljs-number">5</span>, <span class="hljs-string">&quot;,&quot;</span>)<br>    fmt.Print((rand.Float64() * <span class="hljs-number">5</span>) + <span class="hljs-number">5</span>)<br>    fmt.Println()<br><br>    <span class="hljs-comment">// 动态种子：基于当前时间戳生成（生产环境推荐）</span><br>    <span class="hljs-comment">// 创建动态种子：用当前时间的纳秒级时间戳（time.Now().UnixNano()）作为种子（每次运行都不同）</span><br>    s1 := rand.NewSource(time.Now().UnixNano())<br><br>    <span class="hljs-comment">// 基于种子创建随机数生成器实例（r1）</span><br>    r1 := rand.New(s1)<br><br>    <span class="hljs-comment">// 用生成器生成 [0, 100) 区间的整数随机数</span><br>    fmt.Print(r1.Intn(<span class="hljs-number">100</span>), <span class="hljs-string">&quot;,&quot;</span>)<br>    fmt.Print(r1.Intn(<span class="hljs-number">100</span>))<br>    fmt.Println()<br><br>    <span class="hljs-comment">// 固定种子：生成可复现的随机数</span><br>    s2 := rand.NewSource(<span class="hljs-number">42</span>)<br>    r2 := rand.New(s2)<br>    fmt.Print(r2.Intn(<span class="hljs-number">100</span>), <span class="hljs-string">&quot;,&quot;</span>)<br>    fmt.Print(r2.Intn(<span class="hljs-number">100</span>))<br>    fmt.Println()<br><br>    <span class="hljs-comment">// 再次创建相同固定种子（42）的随机数源</span><br>    s3 := rand.NewSource(<span class="hljs-number">42</span>)<br>    r3 := rand.New(s3)<br>    fmt.Print(r3.Intn(<span class="hljs-number">100</span>), <span class="hljs-string">&quot;,&quot;</span>)<br>    fmt.Print(r3.Intn(<span class="hljs-number">100</span>))<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="16-数字解析"><a href="#16-数字解析" class="headerlink" title="16.数字解析"></a>16.数字解析</h2><p><code>strconv</code> 包提供了一套完整的字符串转数字的方法，支持不同类型（浮点数 &#x2F; 整数 &#x2F; 无符号整数）、不同进制（十进制 &#x2F; 十六进制），并通过返回错误提示解析失败原因。</p>
+<table>
+<thead>
+<tr>
+<th>函数</th>
+<th>功能</th>
+<th>适用场景</th>
+<th>关键特点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>ParseFloat</code></td>
+<td>字符串 → 浮点数</td>
+<td>解析小数（如 <code>&quot;1.23&quot;</code>、<code>&quot;-4.5&quot;</code>）</td>
+<td>需指定精度（32&#x2F;64）</td>
+</tr>
+<tr>
+<td><code>ParseInt</code></td>
+<td>字符串 → 有符号整数</td>
+<td>解析多进制整数（十进制 &#x2F; 十六进制）</td>
+<td>支持进制自动识别，需指定位宽</td>
+</tr>
+<tr>
+<td><code>ParseUint</code></td>
+<td>字符串 → 无符号整数</td>
+<td>解析无符号多进制整数</td>
+<td>与 <code>ParseInt</code> 功能类似，返回无符号整数</td>
+</tr>
+<tr>
+<td><code>Atoi</code></td>
+<td>字符串 → 十进制 int 整数</td>
+<td>简单十进制整数解析（最常用）</td>
+<td>简化用法，无需额外参数，默认十进制</td>
+</tr>
+</tbody></table>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> main<br><br><span class="hljs-keyword">import</span> (<br>    <span class="hljs-string">&quot;fmt&quot;</span><br>    <span class="hljs-string">&quot;strconv&quot;</span><br>)<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">    字符串转浮点数：strconv.ParseFloat</span><br><span class="hljs-comment">       第一个参数：待解析的字符串（必须是合法的浮点数格式，如 &quot;1.23&quot;、&quot;-4.56&quot;）；</span><br><span class="hljs-comment">       第二个参数：指定浮点数精度（32 对应 float32，64 对应 float64）；</span><br><span class="hljs-comment">    */</span><br>    f, _ := strconv.ParseFloat(<span class="hljs-string">&quot;1.234&quot;</span>, <span class="hljs-number">64</span>)<br>    fmt.Println(f)<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">    字符串转有符号整数：strconv.ParseInt</span><br><span class="hljs-comment">       第一个参数：待解析的字符串；</span><br><span class="hljs-comment">       第二个参数：进制（0 表示自动识别进制，10 表示十进制，16 表示十六进制等，范围 2-36）；</span><br><span class="hljs-comment">       第三个参数：整数位宽（8/16/32/64，对应不同长度的有符号整数）；</span><br><span class="hljs-comment">    */</span><br>    i, _ := strconv.ParseInt(<span class="hljs-string">&quot;123&quot;</span>, <span class="hljs-number">0</span>, <span class="hljs-number">64</span>)<br>    fmt.Println(i)<br><br>    d, _ := strconv.ParseInt(<span class="hljs-string">&quot;0x1c8&quot;</span>, <span class="hljs-number">0</span>, <span class="hljs-number">64</span>)<br>    fmt.Println(d)<br><br>    <span class="hljs-comment">// 字符串转无符号整数：strconv.ParseUint</span><br>    u, _ := strconv.ParseUint(<span class="hljs-string">&quot;789&quot;</span>, <span class="hljs-number">0</span>, <span class="hljs-number">64</span>)<br>    fmt.Println(u)<br><br>    <span class="hljs-comment">// 简化版字符串转整数：strconv.Atoi</span><br>    k, _ := strconv.Atoi(<span class="hljs-string">&quot;135&quot;</span>)<br>    fmt.Println(k) <span class="hljs-comment">// 输出：135</span><br><br>    <span class="hljs-comment">// 解析非法字符串 &quot;wat&quot;（非数字）</span><br>    _, e := strconv.Atoi(<span class="hljs-string">&quot;wat&quot;</span>)<br>    fmt.Println(e) <span class="hljs-comment">// 输出：strconv.Atoi: parsing &quot;wat&quot;: invalid syntax</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="17-URL-解析"><a href="#17-URL-解析" class="headerlink" title="17.URL 解析"></a>17.URL 解析</h2><p><code>url.Parse()</code> 能将原始 URL 字符串解析为 <code>url.URL</code> 结构体，该结构体封装了 URL 所有标准组件，配合 <code>url.ParseQuery()</code> 可便捷提取查询参数，<code>net.SplitHostPort()</code> 可拆分主机和端口。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">[协议]://[用户认证]@[主机:端口]/[路径]?[查询参数]#[锚点]<br></code></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>字段名</th>
+<th>类型</th>
+<th>对应 URL 组件</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Scheme</code></td>
+<td><code>string</code></td>
+<td>协议（如 http、postgres）</td>
+</tr>
+<tr>
+<td><code>User</code></td>
+<td><code>*url.Userinfo</code></td>
+<td>用户认证（用户名 + 密码）</td>
+</tr>
+<tr>
+<td><code>Host</code></td>
+<td><code>string</code></td>
+<td>主机名 + 端口（host:port）</td>
+</tr>
+<tr>
+<td><code>Path</code></td>
+<td><code>string</code></td>
+<td>路径</td>
+</tr>
+<tr>
+<td><code>RawPath</code></td>
+<td><code>string</code></td>
+<td>未解码的原始路径（含特殊字符）</td>
+</tr>
+<tr>
+<td><code>RawQuery</code></td>
+<td><code>string</code></td>
+<td>未解析的原始查询参数</td>
+</tr>
+<tr>
+<td><code>Fragment</code></td>
+<td><code>string</code></td>
+<td>锚点（# 后部分）</td>
+</tr>
+<tr>
+<td><code>RequestURI</code></td>
+<td><code>string</code></td>
+<td>路径 + 查询参数 + 锚点</td>
+</tr>
+</tbody></table>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> main<br><br><span class="hljs-keyword">import</span> (<br>    <span class="hljs-string">&quot;fmt&quot;</span><br>    <span class="hljs-string">&quot;net&quot;</span><br>    <span class="hljs-string">&quot;net/url&quot;</span><br>)<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>    <span class="hljs-comment">// 原始 URL 字符串（包含协议、用户认证、主机端口、路径、查询参数、锚点）</span><br>    s := <span class="hljs-string">&quot;postgres://user:pass@host.com:5432/path?k=v#f&quot;</span><br><br>    <span class="hljs-comment">// 解析 URL：将字符串转为 url.URL 结构体（核心函数）</span><br>    u, err := url.Parse(s)<br>    <span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>       <span class="hljs-built_in">panic</span>(err)<br>    &#125;<br><br>    <span class="hljs-comment">// 提取基础组件：协议（Scheme）</span><br>    fmt.Println(u.Scheme)<br><br>    <span class="hljs-comment">// 3. 提取用户认证信息：用户名 + 密码（User）</span><br>    fmt.Println(u.User)<br>    fmt.Println(u.User.Username())<br>    p, _ := u.User.Password()<br>    fmt.Println(p)<br><br>    <span class="hljs-comment">// 提取主机和端口（Host）：配合 net.SplitHostPort</span><br>    fmt.Println(u.Host)<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">    net.SplitHostPort(addr string) (host, port string, err error)</span><br><span class="hljs-comment">    功能：将 host:port 格式的字符串拆分为纯主机名和端口；</span><br><span class="hljs-comment">    注意：端口返回值是 string 类型，若需整数需用 strconv.Atoi() 转换；</span><br><span class="hljs-comment">    错误场景：若 addr 无端口（如 host.com）或端口格式非法（如 host.com:abc），会返回错误。</span><br><span class="hljs-comment">    */</span><br>    host, port, _ := net.SplitHostPort(u.Host)<br>    fmt.Println(host)<br>    fmt.Println(port)<br><br>    <span class="hljs-comment">// 提取路径（Path）和锚点（Fragment）</span><br>    fmt.Println(u.Path)<br>    fmt.Println(u.Fragment)<br><br>    <span class="hljs-comment">//  解析查询参数（Query Parameters）：RawQuery 与 ParseQuery</span><br>    fmt.Println(u.RawQuery)<br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">    url.ParseQuery(query string) (url.Values, error)</span><br><span class="hljs-comment">    功能：将查询参数字符串（如 k=v&amp;a=b&amp;a=c）解析为 url.Values 类型（本质是 map[string][]string）；</span><br><span class="hljs-comment">    关键特性：</span><br><span class="hljs-comment">       支持多值参数：若查询参数是 a=b&amp;a=c，解析后 m[&quot;a&quot;] = []string&#123;&quot;b&quot;, &quot;c&quot;&#125;，适合处理同名多值场景（如 ?ids=1&amp;ids=2）；</span><br><span class="hljs-comment">       自动解码：会自动处理 URL 编码字符（如 ?k=hello%20world 解析后 m[&quot;k&quot;][0] = &quot;hello world&quot;）；</span><br><span class="hljs-comment">    用法：通过 m[&quot;key&quot;][0] 获取单值参数，通过遍历 m[&quot;key&quot;] 获取多值参数。</span><br><span class="hljs-comment">    */</span><br>    m, _ := url.ParseQuery(u.RawQuery)<br>    fmt.Println(m)<br>    fmt.Println(m[<span class="hljs-string">&quot;k&quot;</span>][<span class="hljs-number">0</span>])<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="18-SHA256-散列"><a href="#18-SHA256-散列" class="headerlink" title="18.SHA256 散列"></a>18.SHA256 散列</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> main<br><br><span class="hljs-keyword">import</span> (<br>    <span class="hljs-string">&quot;crypto/sha256&quot;</span><br>    <span class="hljs-string">&quot;fmt&quot;</span><br>)<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>    s := <span class="hljs-string">&quot;sha256 this string&quot;</span><br><br>    h := sha256.New()<br><br>    <span class="hljs-comment">// 写入要处理的字节。如果是一个字符串， 需要使用 []byte(s) 将其强制转换成字节数组。</span><br>    h.Write([]<span class="hljs-type">byte</span>(s))<br><br>    <span class="hljs-comment">// 完成哈希计算，返回最终的 SHA-256 哈希值（字节切片类型）</span><br>    bs := h.Sum(<span class="hljs-literal">nil</span>)<br><br>    fmt.Println(s)<br><br>    <span class="hljs-comment">// SHA256 值经常以 16 进制输出，例如在 git commit 中。</span><br>    <span class="hljs-comment">// 我们这里也使用 %x 来将散列结果格式化为 16 进制字符串</span><br>    fmt.Printf(<span class="hljs-string">&quot;%x\n&quot;</span>, bs)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>关键注意点</strong></p>
+<ol>
+<li><strong>数据类型转换</strong>：SHA-256 仅处理字节数据，必须将字符串、数字等转为 <code>[]byte</code> 后再写入哈希器；</li>
+<li><strong>哈希器的复用</strong>：计算多个数据的哈希时，必须调用 <code>h.Reset()</code> 重置状态，否则会将多个数据的字节拼接后计算哈希（如不重置，第二次写入会追加到第一次数据后）；</li>
+<li><strong>哈希值的不可逆性</strong>：SHA-256 是单向哈希，无法从哈希值反推原始数据（如无法从示例中的 64 位字符串得到 <code>&quot;sha256 this string&quot;</code>）；</li>
+<li><strong>抗碰撞性</strong>：不要依赖 SHA-256 进行「加密」（无密钥），其核心用途是「数据完整性校验」（如验证文件是否被篡改）、「密码存储」（存储密码的哈希值，而非明文）；</li>
+<li><strong>安全场景补充</strong>：若用于密码存储，需添加「盐值（Salt）」（如 <code>h.Write(append(salt, []byte(password)...))</code>），避免彩虹表破解；若需更高安全性，可使用 SHA-512（<code>crypto/sha512</code> 包，用法完全一致，输出 128 位十六进制字符串）。</li>
+</ol>
+<h2 id="19-base64编码"><a href="#19-base64编码" class="headerlink" title="19.base64编码"></a>19.base64编码</h2><p><strong>核心概念</strong></p>
+<ol>
+<li><strong>Base64 编码原理</strong>：将 3 字节（24 位）的二进制数据，按每 6 位分组（6 位对应 0-63 的整数），每个分组映射到 Base64 字符表中的一个字符；若数据长度不是 3 的倍数，会自动补零，最终用 <code>=</code> 符号填充（标准 Base64）。</li>
+<li><strong>两种编码方案：</strong><ul>
+<li>标准 Base64（<code>StdEncoding</code>）：字符表包含 <code>A-Z、a-z、0-9、+、/</code>，补位用 <code>=</code>；</li>
+<li>URL 安全 Base64（<code>URLEncoding</code>）：字符表包含 <code>A-Z、a-z、0-9、-、_</code>，<strong>无补位符号</strong>（<code>=</code> 会被省略），避免 <code>+、/、=</code> 等字符在 URL&#x2F; Cookie 中被转义（如 <code>+</code> 会被解析为空格）。</li>
+</ul>
+</li>
+<li><strong>编码特性</strong>：编码后的数据长度约为原始数据的 1.33 倍（3 字节→4 字符），可逆（编码后的数据可完全解码回原始数据）。</li>
+</ol>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> main<br><br><span class="hljs-keyword">import</span> (<br>    b64 <span class="hljs-string">&quot;encoding/base64&quot;</span><br>    <span class="hljs-string">&quot;fmt&quot;</span><br>)<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br><br>    data := <span class="hljs-string">&quot;abc123!?$*&amp;()&#x27;-=@~&quot;</span><br><br>    <span class="hljs-comment">// 标准 Base64 编码：字符串→字节切片→Base64 编码字符串</span><br>    sEnc := b64.StdEncoding.EncodeToString([]<span class="hljs-type">byte</span>(data))<br>    fmt.Println(sEnc)<br><br>    <span class="hljs-comment">// 标准 Base64 解码：Base64 编码字符串→字节切片→原始字符串</span><br>    sDec, _ := b64.StdEncoding.DecodeString(sEnc)<br>    fmt.Println(<span class="hljs-type">string</span>(sDec))<br>    fmt.Println()<br><br>    <span class="hljs-comment">// URL 安全 Base64 编码：字节切片→URL 安全 Base64 字符串</span><br>    uEnc := b64.URLEncoding.EncodeToString([]<span class="hljs-type">byte</span>(data))<br>    fmt.Println(uEnc)<br><br>    <span class="hljs-comment">// URL 安全 Base64 解码：URL 安全 Base64 字符串→原始字节切片</span><br>    uDec, _ := b64.URLEncoding.DecodeString(uEnc)<br>    fmt.Println(<span class="hljs-type">string</span>(uDec))<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>编码方案</th>
+<th>编码函数</th>
+<th>解码函数</th>
+<th>适用场景</th>
+<th>关键特点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>标准 Base64</td>
+<td><code>b64.StdEncoding.EncodeToString(p []byte)</code></td>
+<td><code>b64.StdEncoding.DecodeString(s string)</code></td>
+<td>普通文本 &#x2F; 二进制数据编码（如文件传输、配置存储）</td>
+<td>字符表含 <code>+、/</code>，补位用 <code>=</code></td>
+</tr>
+<tr>
+<td>URL 安全 Base64</td>
+<td><code>b64.URLEncoding.EncodeToString(p []byte)</code></td>
+<td><code>b64.URLEncoding.DecodeString(s string)</code></td>
+<td>URL 参数、Cookie、Token 编码</td>
+<td>字符表含 <code>-、_</code>，无 <code>=</code> 补位，避免转义</td>
+</tr>
+</tbody></table>
+<h2 id="20-读文件"><a href="#20-读文件" class="headerlink" title="20.读文件"></a>20.读文件</h2><p>Go 读取文件的核心是 <code>os.Open()</code>（打开文件获取文件句柄）和 <code>os.ReadFile()</code>（简化版一次性读取），配合 <code>io</code> 包的底层读取函数、<code>bufio</code> 的缓冲读取、<code>Seek()</code> 的随机定位，可灵活应对不同大小、不同读取需求的文件。</p>
+<p><strong>核心概念</strong></p>
+<ol>
+<li><strong>文件句柄（<code>*os.File</code>）</strong>：通过 <code>os.Open()</code> 打开文件后返回的指针，是所有文件读取操作的基础（类似 “文件的操作入口”），使用后必须调用 <code>Close()</code> 关闭（避免资源泄露）；</li>
+<li><strong>读取模式：</strong><ul>
+<li>一次性读取：将整个文件加载到内存（适合小文件）；</li>
+<li>分批读取：按固定字节数读取（适合大文件，避免内存溢出）；</li>
+<li>随机读取：通过 <code>Seek()</code> 定位到文件任意位置读取（无需顺序遍历）；</li>
+<li>缓冲读取：通过 <code>bufio.Reader</code> 减少系统调用次数（提高读取效率，适合频繁小批量读取）；</li>
+</ul>
+</li>
+</ol>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br></pre></td><td class="code"><pre><code class="hljs GO"><span class="hljs-keyword">package</span> main<br><br><span class="hljs-keyword">import</span> (<br>    <span class="hljs-string">&quot;bufio&quot;</span><br>    <span class="hljs-string">&quot;fmt&quot;</span><br>    <span class="hljs-string">&quot;io&quot;</span><br>    <span class="hljs-string">&quot;os&quot;</span><br>)<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">check</span><span class="hljs-params">(e <span class="hljs-type">error</span>)</span></span> &#123;<br>    <span class="hljs-keyword">if</span> e != <span class="hljs-literal">nil</span> &#123;<br>       <span class="hljs-built_in">panic</span>(e)<br>    &#125;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">    用法 1：一次性读取整个文件（os.ReadFile，推荐小文件）</span><br><span class="hljs-comment">    核心函数：os.ReadFile(path string) ([]byte, error)</span><br><span class="hljs-comment">    核心特点：</span><br><span class="hljs-comment">       最简洁的读取方式：无需手动打开 / 关闭文件（ReadFile 内部已封装 Open() 和 Close()）；</span><br><span class="hljs-comment">       底层逻辑：将文件全部内容加载到内存，返回字节切片；</span><br><span class="hljs-comment">       适用场景：小文件（如配置文件、日志片段），大文件（如 1GB 以上）不推荐（会导致内存溢出）；</span><br><span class="hljs-comment">    */</span><br>    dat, err := os.ReadFile(<span class="hljs-string">&quot;/tmp/dat&quot;</span>)<br>    check(err)<br>    fmt.Print(<span class="hljs-type">string</span>(dat))<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">    用法 2：打开文件获取句柄（os.Open，为后续复杂读取做准备）</span><br><span class="hljs-comment">    核心函数：os.Open(path string) (*os.File, error)</span><br><span class="hljs-comment">    功能：以“只读模式”打开文件，返回文件句柄（*os.File）和错误</span><br><span class="hljs-comment">    关键说明：</span><br><span class="hljs-comment">       os.Open() 仅支持 “只读模式”，若需写入需用 os.OpenFile() 并指定权限；</span><br><span class="hljs-comment">       defer f.Close()：将 Close() 延迟到当前函数（main）结束时执行，是 Go 中关闭文件句柄的标准写法（避免遗漏关闭）；</span><br><span class="hljs-comment">       后续所有读取操作（用法 3 - 用法 6）都基于这个文件句柄 f。</span><br><span class="hljs-comment">    */</span><br>    f, err := os.Open(<span class="hljs-string">&quot;/tmp/dat&quot;</span>)<br>    check(err)<br><br>    <span class="hljs-comment">// 注意：文件句柄使用后必须关闭（避免资源泄露）</span><br>    <span class="hljs-keyword">defer</span> f.Close() <span class="hljs-comment">// 推荐用 defer 延迟关闭（函数结束时自动执行，即使中间出错也能关闭）</span><br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">    用法 3：固定字节数读取（f.Read，分批读取大文件）</span><br><span class="hljs-comment">    创建字节切片作为“读取缓冲区”（容量 5 字节，即每次读取 5 字节）</span><br><span class="hljs-comment">    核心方法：f.Read(p []byte) (n int, err error)</span><br><span class="hljs-comment">        功能：从文件当前位置读取数据到缓冲区 p</span><br><span class="hljs-comment">        返回值：n 是实际读取到的字节数（可能小于缓冲区容量，如文件末尾），err 是错误</span><br><span class="hljs-comment">    核心特点：</span><br><span class="hljs-comment">       按缓冲区大小分批读取，适合大文件（如读取 1GB 日志文件，每次读 1MB 缓冲区）；</span><br><span class="hljs-comment">       读取位置是 “连续的”：第一次读取 5 字节后，文件指针自动移动到第 5 字节后，下次读取从第 6 字节开始；</span><br><span class="hljs-comment">       注意：b1[:n1] 是关键 —— 若文件剩余字节数小于缓冲区容量（如文件只剩 3 字节，缓冲区是 5 字节），n1=3，仅需处理前 3 字节。</span><br><span class="hljs-comment">    */</span><br>    b1 := <span class="hljs-built_in">make</span>([]<span class="hljs-type">byte</span>, <span class="hljs-number">5</span>)<br>    n1, err := f.Read(b1)<br>    check(err)<br>    fmt.Printf(<span class="hljs-string">&quot;%d bytes: %s\n&quot;</span>, n1, <span class="hljs-type">string</span>(b1[:n1]))<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">    用法 4：随机位置读取（f.Seek + f.Read，定位读取）</span><br><span class="hljs-comment">    核心方法：f.Seek(offset int64, whence int) (int64, error)</span><br><span class="hljs-comment">       - 功能：将文件指针定位到指定位置</span><br><span class="hljs-comment">       - 参数：</span><br><span class="hljs-comment">         - offset：偏移量（字节数）；</span><br><span class="hljs-comment">         - whence：定位基准（0=从文件开头开始，1=从当前位置开始，2=从文件末尾开始）；</span><br><span class="hljs-comment">       - 返回值：定位后的绝对位置（从文件开头算起）</span><br><span class="hljs-comment">    核心特点：</span><br><span class="hljs-comment">       无需顺序读取，可直接定位到文件任意位置（如读取大文件的中间某段内容）；</span><br><span class="hljs-comment">       常见场景：读取固定格式的文件（如文件头 10 字节是元数据，直接定位到第 10 字节读取数据体）。</span><br><span class="hljs-comment">    */</span><br><br>    o2, err := f.Seek(<span class="hljs-number">6</span>, <span class="hljs-number">0</span>) <span class="hljs-comment">// 从文件开头（0）偏移 6 字节（定位到第 6 字节，索引从 0 开始）</span><br>    check(err)<br>    <span class="hljs-comment">//  创建缓冲区（容量 2 字节）</span><br>    b2 := <span class="hljs-built_in">make</span>([]<span class="hljs-type">byte</span>, <span class="hljs-number">2</span>)<br>    n2, err := f.Read(b2)<br>    check(err)<br>    fmt.Printf(<span class="hljs-string">&quot;%d bytes @ %d: &quot;</span>, n2, o2)<br>    fmt.Printf(<span class="hljs-string">&quot;%v\n&quot;</span>, <span class="hljs-type">string</span>(b2[:n2]))<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">    用法 5：按最少字节数读取（io.ReadAtLeast，确保读取到足够数据）</span><br><span class="hljs-comment">    核心函数：io.ReadAtLeast(r io.Reader, buf []byte, min int) (n int, err error)</span><br><span class="hljs-comment">       - 功能：从 r（文件句柄实现了 io.Reader 接口）读取数据到 buf，确保至少读取 min 字节</span><br><span class="hljs-comment">       - 错误场景：若文件剩余字节数小于 min，会返回错误（io.ErrUnexpectedEOF）</span><br><span class="hljs-comment">    核心特点：</span><br><span class="hljs-comment">       比 f.Read() 更严格：f.Read() 可能读取到少于缓冲区容量的字节（如文件末尾），而 io.ReadAtLeast() 会一直读取直到满足 min 字节数（或出错）；</span><br><span class="hljs-comment">       适用场景：必须读取固定长度数据的场景（如网络协议解析、二进制文件格式解析，要求每次必须读 8 字节）。</span><br><span class="hljs-comment">    */</span><br>    o3, err := f.Seek(<span class="hljs-number">6</span>, <span class="hljs-number">0</span>)<br>    check(err)<br>    b3 := <span class="hljs-built_in">make</span>([]<span class="hljs-type">byte</span>, <span class="hljs-number">2</span>)<br>    n3, err := io.ReadAtLeast(f, b3, <span class="hljs-number">2</span>)<br>    check(err)<br>    fmt.Printf(<span class="hljs-string">&quot;%d bytes @ %d: %s\n&quot;</span>, n3, o3, <span class="hljs-type">string</span>(b3))<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">    用法 6：带缓冲读取（bufio.NewReader + Peek，高效预览 / 读取）</span><br><span class="hljs-comment">    核心函数：bufio.NewReader(r io.Reader) *bufio.Reader</span><br><span class="hljs-comment">       - 功能：创建带缓冲的读取器（默认缓冲区大小 4096 字节，可通过 bufio.NewReaderSize 自定义）</span><br><span class="hljs-comment">    核心方法：r4.Peek(n int) ([]byte, error)</span><br><span class="hljs-comment">       - 功能：预览文件当前位置的前 n 字节（不会移动文件指针，仅“查看”）</span><br><span class="hljs-comment">       - 区别于 Read：Read 会消耗数据（文件指针移动），Peek 仅预览（指针不动）</span><br><span class="hljs-comment">    核心特点：</span><br><span class="hljs-comment">       高效：缓冲读取器会提前读取一批数据到内存缓冲区，后续读取从缓冲区获取，减少系统调用次数（系统调用开销大，缓冲可显著提升读取效率）；</span><br><span class="hljs-comment">       Peek() 预览功能：适合需要 “先查看数据再决定如何读取” 的场景（如解析文件格式时，先预览文件头判断编码方式）；</span><br><span class="hljs-comment">    常用方法补充：</span><br><span class="hljs-comment">       r4.ReadBytes(delim byte)：读取到分隔符 delim 为止（如按行读取用 &#x27;\n&#x27;）；</span><br><span class="hljs-comment">       r4.ReadString(delim byte)：与 ReadBytes 类似，返回字符串；</span><br><span class="hljs-comment">       r4.ReadLine()：按行读取（自动处理 \n 或 \r\n 换行符）。</span><br><span class="hljs-comment">    */</span><br><br>    <span class="hljs-comment">// 先将文件指针重置到文件开头（之前已读取到中间位置）</span><br>    _, err = f.Seek(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>)<br>    check(err)<br><br>    r4 := bufio.NewReader(f)<br>    b4, err := r4.Peek(<span class="hljs-number">5</span>)<br>    check(err)<br>    fmt.Printf(<span class="hljs-string">&quot;5 bytes: %s\n&quot;</span>, <span class="hljs-type">string</span>(b4))<br><br>    f.Close()<br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>方法总结</strong></p>
+<table>
+<thead>
+<tr>
+<th>读取场景</th>
+<th>核心函数 &#x2F; 方法</th>
+<th>适用场景</th>
+<th>关键特点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>小文件一次性读取</td>
+<td><code>os.ReadFile(path)</code></td>
+<td>配置文件、小日志文件（&lt;10MB）</td>
+<td>简洁，无需手动管理文件句柄</td>
+</tr>
+<tr>
+<td>大文件分批读取</td>
+<td><code>f.Read(buf []byte)</code></td>
+<td>大文件（&gt;100MB）、流数据</td>
+<td>控制内存占用，避免溢出</td>
+</tr>
+<tr>
+<td>随机位置读取</td>
+<td><code>f.Seek(offset, whence)</code> + <code>f.Read()</code></td>
+<td>固定格式文件、按需读取中间内容</td>
+<td>灵活定位，无需顺序遍历</td>
+</tr>
+<tr>
+<td>确保读取固定字节数</td>
+<td><code>io.ReadAtLeast(r, buf, min)</code></td>
+<td>协议解析、二进制文件解析</td>
+<td>严格保证读取长度，失败报错</td>
+</tr>
+<tr>
+<td>高效预览 &#x2F; 频繁小读取</td>
+<td><code>bufio.NewReader(r)</code> + <code>Peek()</code>&#x2F;<code>ReadString()</code></td>
+<td>按行读取、频繁小批量读取</td>
+<td>缓冲减少系统调用，支持预览、按分隔符读取</td>
+</tr>
+</tbody></table>
+<p><strong>关键注意点</strong></p>
+<ol>
+<li><strong>文件句柄必须关闭</strong>：<ul>
+<li>忘记关闭文件句柄会导致系统资源泄露（文件描述符耗尽），推荐用 <code>defer f.Close()</code> 延迟关闭（在 <code>os.Open()</code> 后立即调用）；</li>
+<li>错误示例：<code>f, err := os.Open(path); // 无 defer f.Close()</code> → 函数结束后文件句柄未关闭。</li>
+</ul>
+</li>
+<li><strong>缓冲区与实际读取字节数</strong>：<ul>
+<li><code>f.Read(buf)</code> 返回的 <code>n</code>（实际读取字节数）可能小于缓冲区容量（如文件末尾），必须用 <code>buf[:n]</code> 处理数据（避免缓冲区未填满的空字符）；</li>
+<li>错误示例：<code>b := make([]byte, 5); f.Read(b); fmt.Println(string(b))</code> → 若文件只剩 3 字节，输出会包含 2 个空字符。</li>
+</ul>
+</li>
+<li><strong>大文件避免一次性读取</strong>：<ul>
+<li><code>os.ReadFile()</code> 会将整个文件加载到内存，读取 1GB 以上的大文件会导致 <code>OOM</code>（内存溢出），必须用分批读取（<code>f.Read()</code>）或缓冲读取（<code>bufio</code>）；</li>
+</ul>
+</li>
+<li><strong>错误处理不能少</strong>：<ul>
+<li>文件读取的常见错误：文件不存在、权限不足、文件被占用、读取过程中文件被删除，必须处理这些错误（示例用 <code>panic</code>，实际开发可记录日志并优雅退出）；</li>
+<li>特殊错误：<code>io.EOF</code>（文件结束符），当 <code>f.Read()</code> 返回 <code>n&gt;0</code> 且 <code>err=io.EOF</code> 时，说明已读取到文件末尾，需正常处理已读取的 <code>n</code> 字节数据。</li>
+</ul>
+</li>
+<li><strong><code>Seek()</code> 的定位基准</strong>：<ul>
+<li><code>whence=0</code>（默认）：从文件开头计算偏移量（最常用）；</li>
+<li><code>whence=1</code>：从当前文件指针位置计算偏移量（如 <code>f.Seek(2, 1)</code> 表示从当前位置向后移动 2 字节）；</li>
+<li><code>whence=2</code>：从文件末尾计算偏移量（如 <code>f.Seek(-5, 2)</code> 表示定位到文件末尾前 5 字节）。</li>
+</ul>
+</li>
+</ol>
+<p><strong>总结</strong></p>
+<ol>
+<li><strong>核心选择逻辑：</strong><ul>
+<li>小文件：优先用 <code>os.ReadFile()</code>（简洁高效）；</li>
+<li>大文件：用 <code>f.Read()</code> 分批读取或 <code>bufio</code> 缓冲读取（控制内存）；</li>
+<li>随机读取：<code>f.Seek()</code> + 任意读取方法；</li>
+<li>按行 &#x2F; 按分隔符读取：<code>bufio.Reader</code> 的 <code>ReadLine()</code>&#x2F;<code>ReadString()</code>；</li>
+</ul>
+</li>
+<li><strong>关键原则：</strong><ul>
+<li>文件句柄必须关闭（<code>defer f.Close()</code>）；</li>
+<li>处理实际读取字节数（<code>buf[:n]</code>）；</li>
+<li>不忽视错误（尤其是 <code>io.EOF</code>）；</li>
+</ul>
+</li>
+<li><strong>简单记</strong>：“小文件一次读，大文件分批读，随机读取用 Seek，高效读取用 bufio”。</li>
+</ol>
+<h2 id="21-写文件"><a href="#21-写文件" class="headerlink" title="21.写文件"></a>21.写文件</h2><p>Go 写入文件的核心是 <code>os.WriteFile()</code>（简化版一次性写入）和 <code>os.Create()</code>（创建文件获取句柄后写入），配合 <code>Write()</code>（字节写入）、<code>WriteString()</code>（字符串写入）、<code>Sync()</code>（强制刷盘）、<code>bufio.Writer</code>（缓冲写入），可灵活应对不同大小、不同效率要求的文件写入需求。</p>
+<p><strong>核心概念</strong></p>
+<ol>
+<li><strong>文件写入模式：</strong><ul>
+<li>一次性写入：直接将字节切片写入文件（覆盖原有内容，无则创建）；</li>
+<li>句柄写入：先创建 &#x2F; 打开文件获取句柄（<code>*os.File</code>），通过句柄多次写入（支持追加、覆盖等模式）；</li>
+<li>缓冲写入：通过缓冲区暂存数据，批量刷盘（减少系统调用，提升大文件写入效率）；</li>
+</ul>
+</li>
+<li>**文件权限（Mode）：**示例中<code>0644</code>是 Unix 风格的文件权限（<code>rw-r--r--</code>），表示：<ul>
+<li>所有者（owner）：可读可写（<code>6 = 4+2</code>）；</li>
+<li>组用户（group）：只读（<code>4</code>）；</li>
+<li>其他用户（others）：只读（<code>4</code>）；</li>
+<li>Windows 系统会忽略权限设置，但仍需传入合法值（如 <code>0644</code>）；</li>
+</ul>
+</li>
+<li><strong>资源释放</strong>：通过 <code>os.Create()</code> 获取的文件句柄，必须调用 <code>Close()</code> 关闭（<code>defer f.Close()</code> 是标准写法），避免资源泄露。</li>
+</ol>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> main<br><br><span class="hljs-keyword">import</span> (<br>    <span class="hljs-string">&quot;bufio&quot;</span><br>    <span class="hljs-string">&quot;fmt&quot;</span><br>    <span class="hljs-string">&quot;os&quot;</span><br>)<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">checkFile</span><span class="hljs-params">(e <span class="hljs-type">error</span>)</span></span> &#123;<br>    <span class="hljs-keyword">if</span> e != <span class="hljs-literal">nil</span> &#123;<br>       <span class="hljs-built_in">panic</span>(e)<br>    &#125;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">    用法 1：一次性写入整个文件（os.WriteFile，推荐小文件）</span><br><span class="hljs-comment">    核心函数：os.WriteFile(path string, data []byte, perm os.FileMode) error</span><br><span class="hljs-comment">       - 功能：创建文件（无则创建，有则覆盖原有内容），写入数据后自动关闭文件；</span><br><span class="hljs-comment">       - 参数：</span><br><span class="hljs-comment">         - path：文件路径；</span><br><span class="hljs-comment">         - data：待写入的字节切片；</span><br><span class="hljs-comment">         - perm：文件权限（Unix 风格，Windows 忽略）；</span><br><span class="hljs-comment">    核心特点：</span><br><span class="hljs-comment">       最简洁的写入方式：无需手动打开 / 关闭文件（内部封装 OpenFile() 和 Close()）；</span><br><span class="hljs-comment">       覆盖特性：若文件已存在，会直接覆盖原有内容（不会追加）；</span><br><span class="hljs-comment">       适用场景：小文件（如配置文件、临时文件），无需多次写入的场景；</span><br><span class="hljs-comment">    */</span><br>    d1 := []<span class="hljs-type">byte</span>(<span class="hljs-string">&quot;hello\ngo\n&quot;</span>)<br>    err := os.WriteFile(<span class="hljs-string">&quot;/tmp/dat1&quot;</span>, d1, <span class="hljs-number">0644</span>)<br>    checkFile(err)<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">    用法 2：创建文件获取句柄（os.Create，为多次写入做准备）</span><br><span class="hljs-comment">    核心函数：os.Create(path string) (*os.File, error)</span><br><span class="hljs-comment">       - 功能：创建文件（无则创建，有则清空原有内容），返回文件句柄（*os.File）和错误；</span><br><span class="hljs-comment">       - 等价于：os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666)（默认权限 0666）；</span><br><span class="hljs-comment">    关键说明：</span><br><span class="hljs-comment">       os.Create() 的核心是「创建 + 清空」：若文件已存在，会清空所有内容后重新写入；</span><br><span class="hljs-comment">       文件句柄 f 是后续所有写入操作的基础（支持多次写入、混合写入）；</span><br><span class="hljs-comment">       若需「追加写入」（而非覆盖），需用 os.OpenFile() 并指定 os.O_APPEND 标志</span><br><span class="hljs-comment">       （如 os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)）。</span><br><span class="hljs-comment">    */</span><br>    f, err := os.Create(<span class="hljs-string">&quot;/tmp/dat2&quot;</span>)<br>    checkFile(err)<br><br>    <span class="hljs-comment">// 延迟关闭文件句柄（关键：避免资源泄露，函数结束时自动执行）</span><br>    <span class="hljs-keyword">defer</span> f.Close()<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">    用法 3：字节切片写入（f.Write，底层基础写入）</span><br><span class="hljs-comment">    核心方法：f.Write(p []byte) (n int, err error)</span><br><span class="hljs-comment">       - 功能：将字节切片 p 写入文件（从当前文件指针位置开始）；</span><br><span class="hljs-comment">       - 返回值：n 是实际写入的字节数（正常情况下等于 len(p)），err 是错误；</span><br><span class="hljs-comment">    核心特点：</span><br><span class="hljs-comment">       底层写入方法：所有字符串写入最终都会转为字节写入，效率较高；</span><br><span class="hljs-comment">       写入位置：默认从文件开头开始（os.Create 会清空文件，指针在开头），多次写入会依次追加；</span><br><span class="hljs-comment">       适用场景：二进制数据写入（如图片、视频、序列化数据）。</span><br><span class="hljs-comment">    */</span><br>    d2 := []<span class="hljs-type">byte</span>&#123;<span class="hljs-number">115</span>, <span class="hljs-number">111</span>, <span class="hljs-number">109</span>, <span class="hljs-number">101</span>, <span class="hljs-number">10</span>&#125;<br>    n2, err := f.Write(d2)<br>    checkFile(err)<br>    fmt.Printf(<span class="hljs-string">&quot;wrote %d bytes\n&quot;</span>, n2)<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">    用法 4：字符串直接写入（f.WriteString，便捷字符串场景）</span><br><span class="hljs-comment">    核心方法：f.WriteString(s string) (n int, err error)</span><br><span class="hljs-comment">       - 功能：直接将字符串 s 写入文件（内部自动转为字节切片，无需手动转换）；</span><br><span class="hljs-comment">       - 返回值：n 是实际写入的字节数（等于 len(s)），err 是错误；</span><br><span class="hljs-comment">    核心特点：</span><br><span class="hljs-comment">       便捷性：无需手动执行 []byte(s) 转换，适合频繁写入字符串的场景（如日志写入）；</span><br><span class="hljs-comment">       效率：与 f.Write([]byte(s)) 效率一致（内部仅多一层转换，无额外开销）。</span><br><span class="hljs-comment">    */</span><br>    n3, err := f.WriteString(<span class="hljs-string">&quot;writes\n&quot;</span>)<br>    checkFile(err)<br>    fmt.Printf(<span class="hljs-string">&quot;wrote %d bytes\n&quot;</span>, n3)<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">    用法 5：强制刷盘（f.Sync，数据安全优先场景）</span><br><span class="hljs-comment">    核心方法：f.Sync() error</span><br><span class="hljs-comment">       功能：将文件缓冲区（操作系统层面的缓冲区）中的数据强制刷写到磁盘；</span><br><span class="hljs-comment">       背景：操作系统为提升效率，会将写入数据暂存到内存缓冲区，定期批量刷盘（默认延迟约 30 秒）；</span><br><span class="hljs-comment">       适用场景：数据安全优先的场景（如数据库写入、日志记录、金融交易数据），避免断电 / 系统崩溃导致数据丢失；</span><br><span class="hljs-comment">       注意：Sync() 是阻塞操作，会等待刷盘完成，频繁调用会降低写入效率。</span><br><span class="hljs-comment">    */</span><br>    f.Sync()<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">    用法 6：带缓冲写入（bufio.Writer，高效批量写入）</span><br><span class="hljs-comment">    核心函数：bufio.NewWriter(w io.Writer) *bufio.Writer</span><br><span class="hljs-comment">       - 功能：创建带缓冲的写入器（默认缓冲区大小 4096 字节，可通过 bufio.NewWriterSize 自定义）；</span><br><span class="hljs-comment">       - 原理：将数据先写入内存缓冲区，缓冲区满或调用 Flush() 时，批量刷写到文件（减少系统调用次数）；</span><br><span class="hljs-comment">    核心方法：w.Flush() error</span><br><span class="hljs-comment">       - 功能：强制将缓冲区中的数据刷写到文件（必须调用，否则缓冲区数据可能未写入磁盘）；</span><br><span class="hljs-comment">    核心特点：</span><br><span class="hljs-comment">       高效：减少系统调用（系统调用开销大，批量刷盘可提升 10x+ 效率），适合大文件写入、频繁小批量写入（如日志输出）；</span><br><span class="hljs-comment">    注意事项：</span><br><span class="hljs-comment">       必须调用 w.Flush()：否则缓冲区中的数据不会写入文件（程序退出时缓冲区可能丢失）；</span><br><span class="hljs-comment">       缓冲区大小：默认 4KB，若写入数据量大（如每次写 1MB），可自定义更大缓冲区（如 bufio.NewWriterSize(f, 1024*1024)）；</span><br><span class="hljs-comment">    与 f.Sync() 的区别：</span><br><span class="hljs-comment">       Flush() 是将 Go 程序层面的缓冲区刷到操作系统缓冲区，Sync() 是将操作系统缓冲区刷到磁盘（数据安全场景需两者结合：w.Flush() + f.Sync()）。</span><br><span class="hljs-comment">    */</span><br>    w := bufio.NewWriter(f)<br>    n4, err := w.WriteString(<span class="hljs-string">&quot;buffered\n&quot;</span>) <span class="hljs-comment">// 缓冲写入字符串（与 f.WriteString 用法一致，但写入缓冲区）</span><br>    checkFile(err)<br>    fmt.Printf(<span class="hljs-string">&quot;wrote %d bytes\n&quot;</span>, n4)<br><br>    w.Flush()<br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>方法总结</strong></p>
+<table>
+<thead>
+<tr>
+<th>写入场景</th>
+<th>核心函数 &#x2F; 方法</th>
+<th>适用场景</th>
+<th>关键特点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>小文件一次性写入</td>
+<td><code>os.WriteFile(path, data, perm)</code></td>
+<td>配置文件、临时文件（&lt;10MB）</td>
+<td>简洁，无需手动管理文件句柄</td>
+</tr>
+<tr>
+<td>多次写入 &#x2F; 混合写入</td>
+<td><code>os.Create(path)</code> + <code>f.Write()</code>&#x2F;<code>f.WriteString()</code></td>
+<td>多段数据写入、字符串 + 字节混合写入</td>
+<td>灵活控制写入内容，支持追加（需改 OpenFile 标志）</td>
+</tr>
+<tr>
+<td>字符串便捷写入</td>
+<td><code>f.WriteString(s)</code></td>
+<td>日志写入、文本内容写入</td>
+<td>无需手动转换字节切片，代码简洁</td>
+</tr>
+<tr>
+<td>数据安全优先写入</td>
+<td><code>f.Sync()</code></td>
+<td>数据库、金融数据、关键日志</td>
+<td>强制刷盘，避免数据丢失（阻塞操作）</td>
+</tr>
+<tr>
+<td>大文件 &#x2F; 频繁写入</td>
+<td><code>bufio.NewWriter(f)</code> + <code>w.WriteString()</code> + <code>w.Flush()</code></td>
+<td>日志输出、大文件写入（&gt;100MB）</td>
+<td>缓冲批量刷盘，减少系统调用，提升效率</td>
+</tr>
+<tr>
+<td>二进制数据写入</td>
+<td><code>f.Write(p []byte)</code></td>
+<td>图片、视频、序列化数据</td>
+<td>底层写入方法，效率高</td>
+</tr>
+</tbody></table>
+<p><strong>关键注意点</strong></p>
+<ol>
+<li><strong>文件句柄必须关闭</strong>：<ul>
+<li>用 <code>os.Create()</code>&#x2F;<code>os.OpenFile()</code> 获取的句柄，必须调用 <code>Close()</code> 关闭（<code>defer f.Close()</code> 是标准写法）；</li>
+<li>若未关闭，可能导致缓冲区数据未刷盘（数据丢失）或系统资源泄露（文件描述符耗尽）。</li>
+</ul>
+</li>
+<li><strong><code>os.WriteFile</code> 的覆盖特性</strong>：<ul>
+<li>若文件已存在，<code>os.WriteFile()</code> 会直接覆盖原有内容（不会追加）；</li>
+<li>若需追加写入，需用 <code>os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)</code> 打开文件后写入。</li>
+</ul>
+</li>
+<li><strong>缓冲写入必须调用 <code>Flush()</code></strong>：<ul>
+<li><code>bufio.Writer</code> 的写入操作仅将数据写入内存缓冲区，未实际写入文件；</li>
+<li>必须调用 <code>w.Flush()</code> 才能将缓冲区数据刷到文件（程序退出前务必调用，否则数据丢失）。</li>
+</ul>
+</li>
+<li><strong><code>Sync()</code> 与 <code>Flush()</code> 的区别</strong>：<ul>
+<li><code>Flush()</code>：Go 程序 → 操作系统缓冲区（非持久化，断电可能丢失）；</li>
+<li><code>Sync()</code>：操作系统缓冲区 → 磁盘（持久化，数据安全）；</li>
+<li>数据安全场景（如交易记录）：需先 <code>Flush()</code> 再 <code>Sync()</code>（<code>w.Flush(); f.Sync()</code>）。</li>
+</ul>
+</li>
+<li><strong>文件权限的兼容性</strong>：<ul>
+<li>Unix&#x2F;Linux&#x2F;Mac 系统严格遵循 <code>perm</code> 权限设置（如 <code>0644</code>）；</li>
+<li>Windows 系统忽略权限设置，但仍需传入合法值（如 <code>0644</code>、<code>0755</code>），否则会报错。</li>
+</ul>
+</li>
+<li><strong>错误处理不能少</strong>：<ul>
+<li>写入文件的常见错误：权限不足（无法创建文件）、磁盘空间不足、文件被占用，必须处理这些错误；</li>
+<li>示例用 <code>panic</code> 简化错误处理，实际开发中应记录日志并优雅退出（如 <code>log.Fatal(err)</code>）。</li>
+</ul>
+</li>
+</ol>
+<p><strong>总结</strong></p>
+<ol>
+<li><strong>核心选择逻辑：</strong><ul>
+<li>小文件一次性写入：优先用 <code>os.WriteFile()</code>（简洁高效）；</li>
+<li>多次 &#x2F; 混合写入：用 <code>os.Create()</code> 获取句柄，配合 <code>Write()</code>&#x2F;<code>WriteString()</code>；</li>
+<li>高效批量写入：用 <code>bufio.Writer</code> + <code>Flush()</code>（减少系统调用）；</li>
+<li>数据安全写入：加 <code>f.Sync()</code>（强制刷盘）；</li>
+</ul>
+</li>
+<li><strong>关键原则：</strong><ul>
+<li>句柄必须关闭（<code>defer f.Close()</code>）；</li>
+<li>缓冲必须 <code>Flush()</code>；</li>
+<li>安全必须 <code>Sync()</code>；</li>
+<li>错误必须处理；</li>
+</ul>
+</li>
+<li><strong>简单记</strong>：“小文件一次写，多次写入用句柄，高效写入用缓冲，安全写入加 Sync”。</li>
+</ol>
+<h2 id="22-行过滤器"><a href="#22-行过滤器" class="headerlink" title="22.行过滤器"></a>22.行过滤器</h2><p>行过滤器的核心是 <code>bufio.Scanner</code>（逐行读取输入流）+ 自定义处理逻辑 + 错误处理，适用于「逐行处理文本流」的场景（终端输入、文件管道、日志分析等）。</p>
+<p><strong>核心概念</strong></p>
+<ol>
+<li><strong>行过滤器（Line Filter）</strong>：一种命令行程序模式，特点是「从标准输入（<code>os.Stdin</code>）读取数据，按行处理，处理结果输出到标准输出（<code>os.Stdout</code>）」，不依赖本地文件，靠管道（<code>|</code>）或重定向（<code>&lt;</code>&#x2F;<code>&gt;</code>）传递数据；</li>
+<li><strong>核心组件：</strong><ul>
+<li><code>bufio.Scanner</code>：Go 标准库提供的「逐行读取器」，自动处理换行符（<code>\n</code>&#x2F;<code>\r\n</code>），无需手动分割行；</li>
+<li><code>os.Stdin</code>：标准输入流（默认是终端键盘输入，也可通过管道 &#x2F; 重定向改为文件输入）；</li>
+<li><code>os.Stdout</code>：标准输出流（默认是终端显示，也可重定向到文件）；</li>
+</ul>
+</li>
+<li><strong>使用方式：</strong><ul>
+<li>终端直接输入：运行程序后，键盘输入一行，程序输出处理后的结果；</li>
+<li>管道输入：<code>cat 文件名 | go run 程序.go</code>（将文件内容作为输入，逐行处理）；</li>
+<li>重定向输入：<code>go run 程序.go &lt; 文件名</code>（读取文件内容作为输入）。</li>
+</ul>
+</li>
+</ol>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> main<br><br><span class="hljs-keyword">import</span> (<br>    <span class="hljs-string">&quot;bufio&quot;</span><br>    <span class="hljs-string">&quot;fmt&quot;</span><br>    <span class="hljs-string">&quot;os&quot;</span><br>    <span class="hljs-string">&quot;strings&quot;</span><br>)<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br><br>    <span class="hljs-comment">// 核心函数：bufio.NewScanner(r io.Reader) *bufio.Scanner</span><br>    <span class="hljs-comment">// 功能：创建一个扫描器，从 io.Reader 接口读取数据（os.Stdin 实现了 io.Reader）</span><br>    <span class="hljs-comment">// 作用：自动按行分割输入，处理换行符（\n 或 \r\n），无需手动处理</span><br>    scanner := bufio.NewScanner(os.Stdin)<br><br>    <span class="hljs-comment">// 核心方法：scanner.Scan() bool</span><br>    <span class="hljs-comment">// 功能：扫描下一行数据，返回 bool 值（true 表示扫描到数据，false 表示扫描结束或出错）</span><br>    <span class="hljs-keyword">for</span> scanner.Scan() &#123;<br>       <span class="hljs-comment">// 核心方法：scanner.Text() string → 获取当前扫描到的行（已去除末尾的换行符）</span><br>       ucl := strings.ToUpper(scanner.Text())<br><br>       fmt.Println(ucl)<br>    &#125;<br><br>    <span class="hljs-comment">// 核心方法：scanner.Err() error → 获取扫描过程中的错误（如输入流读取失败）</span><br>    <span class="hljs-keyword">if</span> err := scanner.Err(); err != <span class="hljs-literal">nil</span> &#123;<br>       fmt.Fprintln(os.Stderr, <span class="hljs-string">&quot;error:&quot;</span>, err)<br>       os.Exit(<span class="hljs-number">1</span>)<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="23-文件路径"><a href="#23-文件路径" class="headerlink" title="23.文件路径"></a>23.文件路径</h2><p><code>path/filepath</code> 是 Go 处理文件路径的首选包，提供的 API 均为跨平台设计，能避免直接拼接字符串导致的路径格式错误，配合 <code>strings</code> 包可完成路径的全生命周期操作（拼接→拆解→判断→转换）。</p>
+<p><strong>核心概念</strong></p>
+<ol>
+<li><strong>路径分隔符：</strong><ul>
+<li>Unix&#x2F;Linux&#x2F;Mac：路径分隔符为 <code>/</code>（如 <code>/home/user/file.txt</code>）；</li>
+<li>Windows：路径分隔符为 <code>\</code>（如 <code>C:\Users\file.txt</code>）；</li>
+<li><code>path/filepath</code> 包的 API 会自动识别操作系统，统一处理分隔符（无需手动判断系统）；</li>
+</ul>
+</li>
+<li><strong>关键路径术语：</strong><ul>
+<li>绝对路径：从根目录开始的完整路径（如 <code>/a/b/c</code>、<code>C:\a\b</code>）；</li>
+<li>相对路径：从当前目录开始的路径（如 <code>../a/b</code>、<code>dir/file.txt</code>）；</li>
+<li>目录路径：路径的 “文件夹部分”（如 <code>dir1/dir2/filename</code> 的目录路径是 <code>dir1/dir2</code>）；</li>
+<li>文件名：路径的 “文件部分”（如 <code>dir1/dir2/filename</code> 的文件名是 <code>filename</code>）；</li>
+<li>扩展名：文件名中 <code>.</code> 后的部分（如 <code>config.json</code> 的扩展名为 <code>.json</code>）。</li>
+</ul>
+</li>
+</ol>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> main<br><br><span class="hljs-keyword">import</span> (<br>    <span class="hljs-string">&quot;fmt&quot;</span><br>    <span class="hljs-string">&quot;path/filepath&quot;</span><br>    <span class="hljs-string">&quot;strings&quot;</span><br>)<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">    核心函数：filepath.Join(elem ...string) string</span><br><span class="hljs-comment">       功能：将多个路径片段拼接为一个标准化路径，自动处理 3 个关键问题：</span><br><span class="hljs-comment">       跨平台分隔符：根据系统自动用 / 或 \ 拼接；</span><br><span class="hljs-comment">       多余分隔符：合并连续的 / 或 \（如 dir1//dir2 → dir1/dir2）；</span><br><span class="hljs-comment">       路径跳转：解析 ..（上一级目录）和 .（当前目录）（如 dir1/../dir2 → dir2）；</span><br><span class="hljs-comment">    关键优势：避免手动拼接字符串（如 dir1 + &quot;/&quot; + dir2）导致的跨平台错误或格式混乱；</span><br><span class="hljs-comment">    注意：空字符串片段会被忽略（如 filepath.Join(&quot;dir1&quot;, &quot;&quot;, &quot;dir2&quot;) → dir1/dir2）。</span><br><span class="hljs-comment">    */</span><br><br>    <span class="hljs-comment">// 标准拼接：多个路径片段拼接为完整路径</span><br>    p := filepath.Join(<span class="hljs-string">&quot;dir1&quot;</span>, <span class="hljs-string">&quot;dir2&quot;</span>, <span class="hljs-string">&quot;filename&quot;</span>)<br>    fmt.Println(<span class="hljs-string">&quot;p:&quot;</span>, p)<br><br>    <span class="hljs-comment">// 自动清理多余分隔符（// 或 \\\ 会合并为一个）</span><br>    fmt.Println(filepath.Join(<span class="hljs-string">&quot;dir1//&quot;</span>, <span class="hljs-string">&quot;filename&quot;</span>))<br><br>    <span class="hljs-comment">// 自动处理 .. 路径跳转（.. 表示“上一级目录”）</span><br>    fmt.Println(filepath.Join(<span class="hljs-string">&quot;dir1/../dir1&quot;</span>, <span class="hljs-string">&quot;filename&quot;</span>))<br><br>    <span class="hljs-comment">// 提取路径的“目录部分”（不含文件名）</span><br>    fmt.Println(<span class="hljs-string">&quot;Dir(p):&quot;</span>, filepath.Dir(p))<br>    <span class="hljs-comment">// 提取路径的“文件名部分”（不含目录）</span><br>    fmt.Println(<span class="hljs-string">&quot;Base(p):&quot;</span>, filepath.Base(p))<br><br>    <span class="hljs-comment">// 判断相对路径（无根目录开头）</span><br>    fmt.Println(filepath.IsAbs(<span class="hljs-string">&quot;dir/file&quot;</span>))<br><br>    <span class="hljs-comment">// 判断绝对路径（Unix 以 / 开头，Windows 以 C:\ 等盘符开头）</span><br>    fmt.Println(filepath.IsAbs(<span class="hljs-string">&quot;/dir/file&quot;</span>))<br><br>    filename := <span class="hljs-string">&quot;config.json&quot;</span><br><br>    <span class="hljs-comment">// 提取文件扩展名（含开头的 .）</span><br>    ext := filepath.Ext(filename)<br>    fmt.Println(ext) <span class="hljs-comment">// 输出：.json</span><br><br>    <span class="hljs-comment">// 去除扩展名（保留文件名主体）</span><br>    fmt.Println(strings.TrimSuffix(filename, ext))<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">    filepath.Rel(basepath, targpath string) (string, error)</span><br><span class="hljs-comment">    功能：计算从「基准路径 basepath」到「目标路径 targpath」的相对路径（即 “如何从 basepath 走到 targpath”）；</span><br><span class="hljs-comment">    参数要求：basepath 和 targpath 需是同一根目录下的路径（否则返回错误，如基准路径 /a 和目标路径 C:\b 无法计算相对路径）；</span><br><span class="hljs-comment">    关键逻辑：</span><br><span class="hljs-comment">       若目标路径是基准路径的子目录（如 a/b → a/b/t/file），直接返回子目录路径（t/file）；</span><br><span class="hljs-comment">       若目标路径与基准路径有共同父目录（如 a/b → a/c/t/file），用 ../ 跳转上一级目录（../c/t/file）；</span><br><span class="hljs-comment">       错误场景：基准路径或目标路径非法、两者无共同根目录（跨盘符），会返回非空错误（实际开发需处理）。</span><br><span class="hljs-comment">    */</span><br><br>    <span class="hljs-comment">// 计算从基准路径 &quot;a/b&quot; 到目标路径 &quot;a/b/t/file&quot; 的相对路径</span><br>    rel, err := filepath.Rel(<span class="hljs-string">&quot;a/b&quot;</span>, <span class="hljs-string">&quot;a/b/t/file&quot;</span>)<br>    <span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>       <span class="hljs-built_in">panic</span>(err)<br>    &#125;<br>    fmt.Println(rel) <span class="hljs-comment">// 输出：t/file</span><br><br>    <span class="hljs-comment">// 计算从基准路径 &quot;a/b&quot; 到目标路径 &quot;a/c/t/file&quot; 的相对路径</span><br>    rel, err = filepath.Rel(<span class="hljs-string">&quot;a/b&quot;</span>, <span class="hljs-string">&quot;a/c/t/file&quot;</span>)<br>    <span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>       <span class="hljs-built_in">panic</span>(err)<br>    &#125;<br>    fmt.Println(rel) <span class="hljs-comment">// 输出：../c/t/file</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>核心函数总结</strong></p>
+<table>
+<thead>
+<tr>
+<th>场景需求</th>
+<th>核心函数</th>
+<th>关键特点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>路径拼接（跨平台）</td>
+<td><code>filepath.Join(elem ...string)</code></td>
+<td>自动处理分隔符、多余 <code>/</code>、<code>..</code> 跳转</td>
+</tr>
+<tr>
+<td>提取目录部分</td>
+<td><code>filepath.Dir(path string)</code></td>
+<td>跨平台兼容，处理尾部 <code>/</code> 场景</td>
+</tr>
+<tr>
+<td>提取文件名（含扩展名）</td>
+<td><code>filepath.Base(path string)</code></td>
+<td>区分文件和目录路径</td>
+</tr>
+<tr>
+<td>判断绝对 &#x2F; 相对路径</td>
+<td><code>filepath.IsAbs(path string)</code></td>
+<td>适配 Unix&#x2F;Windows 绝对路径规则</td>
+</tr>
+<tr>
+<td>提取文件扩展名</td>
+<td><code>filepath.Ext(path string)</code></td>
+<td>取最后一个 <code>.</code> 后的部分，含 <code>.</code></td>
+</tr>
+<tr>
+<td>计算相对路径</td>
+<td><code>filepath.Rel(base, target string)</code></td>
+<td>需同一根目录，返回可直接使用的相对路径</td>
+</tr>
+</tbody></table>
+<p><strong>关键注意点</strong></p>
+<ol>
+<li><strong>优先用 <code>filepath</code> 而非 <code>path</code> 包</strong>：<ul>
+<li><code>path</code> 包：仅支持 <code>/</code> 分隔符（适合 URL 路径处理），不兼容 Windows；</li>
+<li><code>filepath</code> 包：自动适配系统分隔符（推荐文件路径处理）；</li>
+<li>错误示例：用 <code>path.Join</code> 处理 Windows 文件路径（<code>path.Join(&quot;C:&quot;, &quot;Users&quot;, &quot;file&quot;)</code> → <code>C:/Users/file</code>，Windows 系统可能无法识别）。</li>
+</ul>
+</li>
+<li><strong>避免手动拼接路径字符串</strong>：<ul>
+<li>错误写法：<code>dir + &quot;/&quot; + file</code>（Windows 下应是 <code>dir + &quot;\\&quot; + file</code>，跨平台会出错）；</li>
+<li>正确写法：<code>filepath.Join(dir, file)</code>（自动适配分隔符）。</li>
+</ul>
+</li>
+<li><strong><code>filepath.Ext</code> 的特殊情况</strong>：<ul>
+<li>隐藏文件（如 <code>.bashrc</code>）的扩展名为 <code>.bashrc</code>（而非空）；</li>
+<li>无扩展名文件（如 <code>README</code>）返回空字符串；</li>
+<li>多扩展名文件（如 <code>archive.tar.gz</code>）返回最后一个扩展名（<code>.gz</code>）。</li>
+</ul>
+</li>
+<li><strong><code>filepath.Rel</code> 的错误处理</strong>：<ul>
+<li>若基准路径或目标路径是绝对路径，另一个是相对路径，需先转为统一格式（如用 <code>filepath.Abs()</code> 转为绝对路径）再计算；</li>
+<li>跨盘符路径（如 Windows 下 <code>C:\a</code> 和 <code>D:\b</code>）无法计算相对路径，会返回错误，需提前判断。</li>
+</ul>
+</li>
+<li><strong>路径规范化（补充用法）</strong>：<ul>
+<li>若需将路径转为 “标准化格式”（清理多余 <code>/</code>、解析 <code>..</code>），可用 <code>filepath.Clean(path string)</code>（<code>filepath.Join</code> 内部已调用此函数）；</li>
+<li>示例：<code>filepath.Clean(&quot;dir1//../dir2/./file&quot;)</code> → <code>dir2/file</code>。</li>
+</ul>
+</li>
+</ol>
+<h2 id="24-目录"><a href="#24-目录" class="headerlink" title="24.目录"></a>24.目录</h2><p><code>os</code> 包负责目录的基础操作（创建、删除、切换、读取），<code>filepath.Walk</code> 负责目录的递归遍历，配合 <code>os.ReadDir</code> 可灵活获取目录下的文件 &#x2F; 子目录信息，<code>defer os.RemoveAll</code> 是目录操作后清理资源的标准写法。</p>
+<p><strong>核心目录操作 API：</strong></p>
+<ul>
+<li>目录创建：<code>os.Mkdir</code>（单层）、<code>os.MkdirAll</code>（多层，递归创建）；</li>
+<li>目录删除：<code>os.RemoveAll</code>（递归删除目录及所有内容，慎用！）；</li>
+<li>目录读取：<code>os.ReadDir</code>（获取目录下的所有文件 &#x2F; 子目录条目）；</li>
+<li>工作目录切换：<code>os.Chdir</code>（切换当前程序的工作目录，类似 <code>cd</code> 命令）；</li>
+<li>递归遍历：<code>filepath.Walk</code>（深度优先遍历目录下的所有文件 &#x2F; 子目录）；</li>
+</ul>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> main<br><br><span class="hljs-keyword">import</span> (<br>    <span class="hljs-string">&quot;fmt&quot;</span><br>    <span class="hljs-string">&quot;os&quot;</span><br>    <span class="hljs-string">&quot;path/filepath&quot;</span><br>)<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">checkDir</span><span class="hljs-params">(e <span class="hljs-type">error</span>)</span></span> &#123;<br>    <span class="hljs-keyword">if</span> e != <span class="hljs-literal">nil</span> &#123;<br>       <span class="hljs-built_in">panic</span>(e)<br>    &#125;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>    <span class="hljs-comment">// 创建单层目录：os.Mkdir(name string, perm os.FileMode) error</span><br>    <span class="hljs-comment">//   - 功能：创建单个目录（父目录必须已存在，否则报错）；</span><br>    <span class="hljs-comment">//   - 参数：&quot;subdir&quot; 是目录名，0755 是目录权限（Unix 下 rwxr-xr-x，Windows 忽略）；</span><br>    err := os.Mkdir(<span class="hljs-string">&quot;subdir&quot;</span>, <span class="hljs-number">0755</span>)<br>    checkDir(err)<br><br>    <span class="hljs-comment">//  延迟删除目录：程序结束时，递归删除 &quot;subdir&quot; 及所有子目录/文件（避免残留）</span><br>    <span class="hljs-comment">//   - 关键：os.RemoveAll 是递归删除，慎用！删除后无法恢复；</span><br>    <span class="hljs-keyword">defer</span> os.RemoveAll(<span class="hljs-string">&quot;subdir&quot;</span>)<br><br>    createEmptyFile := <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(name <span class="hljs-type">string</span>)</span></span> &#123;<br>       d := []<span class="hljs-type">byte</span>(<span class="hljs-string">&quot;&quot;</span>)<br>       <span class="hljs-comment">// os.WriteFile：创建文件（无则创建，有则覆盖），写入空字节，权限 0644；</span><br>       check(os.WriteFile(name, d, <span class="hljs-number">0644</span>))<br>    &#125;<br><br>    createEmptyFile(<span class="hljs-string">&quot;subdir/file1&quot;</span>)<br><br>    <span class="hljs-comment">// 创建多层目录：os.MkdirAll(path string, perm os.FileMode) error</span><br>    <span class="hljs-comment">//   - 功能：递归创建多层目录（父目录不存在则自动创建，类似 mkdir -p）；</span><br>    <span class="hljs-comment">//   - 示例：创建 &quot;subdir/parent/child&quot;，即使 parent 和 child 都不存在也能成功；</span><br>    err = os.MkdirAll(<span class="hljs-string">&quot;subdir/parent/child&quot;</span>, <span class="hljs-number">0755</span>)<br>    checkDir(err)<br><br>    createEmptyFile(<span class="hljs-string">&quot;subdir/parent/file2&quot;</span>)<br>    createEmptyFile(<span class="hljs-string">&quot;subdir/parent/file3&quot;</span>)<br>    createEmptyFile(<span class="hljs-string">&quot;subdir/parent/child/file4&quot;</span>)<br><br>    c, err := os.ReadDir(<span class="hljs-string">&quot;subdir/parent&quot;</span>)<br>    checkDir(err)<br><br>    fmt.Println(<span class="hljs-string">&quot;Listing subdir/parent&quot;</span>)<br>    <span class="hljs-keyword">for</span> _, entry := <span class="hljs-keyword">range</span> c &#123;<br>       fmt.Println(<span class="hljs-string">&quot; &quot;</span>, entry.Name(), entry.IsDir())<br>    &#125;<br><br>    err = os.Chdir(<span class="hljs-string">&quot;subdir/parent/child&quot;</span>)<br>    checkDir(err)<br><br>    <span class="hljs-comment">// 读取目录：os.ReadDir(name string) ([]os.DirEntry, error)</span><br>    <span class="hljs-comment">//   - 功能：获取目录下的所有条目（文件+子目录），不递归；</span><br>    <span class="hljs-comment">//   - 返回值：[]os.DirEntry 切片，每个元素包含条目名称和类型（文件/目录）；</span><br>    c, err = os.ReadDir(<span class="hljs-string">&quot;.&quot;</span>)<br>    checkDir(err)<br><br>    fmt.Println(<span class="hljs-string">&quot;Listing subdir/parent/child&quot;</span>)<br>    <span class="hljs-keyword">for</span> _, entry := <span class="hljs-keyword">range</span> c &#123;<br>       fmt.Println(<span class="hljs-string">&quot; &quot;</span>, entry.Name(), entry.IsDir())<br>    &#125;<br><br>    <span class="hljs-comment">// 切换工作目录：os.Chdir(dir string) error</span><br>    <span class="hljs-comment">//   - 功能：切换当前程序的工作目录（类似终端的 cd 命令）；</span><br>    <span class="hljs-comment">//   - 示例：切换到 &quot;subdir/parent/child&quot;，后续的相对路径都基于此目录；</span><br>    err = os.Chdir(<span class="hljs-string">&quot;../../..&quot;</span>)<br>    checkDir(err)<br><br>    <span class="hljs-comment">// 递归遍历目录：filepath.Walk(root string, walkFn WalkFunc) error</span><br>    <span class="hljs-comment">//   - 功能：深度优先遍历 root 目录下的所有文件和子目录（包括 root 本身）；</span><br>    <span class="hljs-comment">//   - 参数：</span><br>    <span class="hljs-comment">//     - root：要遍历的根目录（&quot;subdir&quot;）；</span><br>    <span class="hljs-comment">//     - walkFn：遍历回调函数（每个条目都会调用一次，参数为条目路径、信息、错误）；</span><br>    fmt.Println(<span class="hljs-string">&quot;Visiting subdir&quot;</span>)<br>    err = filepath.Walk(<span class="hljs-string">&quot;subdir&quot;</span>, visit)<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">visit</span><span class="hljs-params">(p <span class="hljs-type">string</span>, info os.FileInfo, err <span class="hljs-type">error</span>)</span></span> <span class="hljs-type">error</span> &#123;<br>    <span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>       <span class="hljs-keyword">return</span> err<br>    &#125;<br>    fmt.Println(<span class="hljs-string">&quot; &quot;</span>, p, info.IsDir())<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>核心函数总结</strong></p>
+<table>
+<thead>
+<tr>
+<th>目录操作场景</th>
+<th>核心函数</th>
+<th>关键特点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>创建单层目录</td>
+<td><code>os.Mkdir(name, perm)</code></td>
+<td>父目录必须存在，仅创建一层</td>
+</tr>
+<tr>
+<td>创建多层目录</td>
+<td><code>os.MkdirAll(path, perm)</code></td>
+<td>递归创建，父目录不存在则自动创建</td>
+</tr>
+<tr>
+<td>删除目录（含内容）</td>
+<td><code>os.RemoveAll(path)</code></td>
+<td>递归删除，不可逆，慎用！</td>
+</tr>
+<tr>
+<td>读取目录条目（非递归）</td>
+<td><code>os.ReadDir(name)</code></td>
+<td>返回 [] os.DirEntry，包含名称和类型</td>
+</tr>
+<tr>
+<td>切换工作目录</td>
+<td><code>os.Chdir(dir)</code></td>
+<td>全局生效，需记得切换回原目录</td>
+</tr>
+<tr>
+<td>递归遍历目录</td>
+<td><code>filepath.Walk(root, walkFn)</code></td>
+<td>深度优先，回调函数处理每个条目</td>
+</tr>
+<tr>
+<td>获取当前工作目录</td>
+<td><code>os.Getwd()</code></td>
+<td>返回当前程序的工作目录路径</td>
+</tr>
+</tbody></table>
+<h2 id="25-临时文件和目录"><a href="#25-临时文件和目录" class="headerlink" title="25.临时文件和目录"></a>25.临时文件和目录</h2><p>Go 中创建临时文件 &#x2F; 目录优先使用 <code>os.CreateTemp</code>（临时文件）和 <code>os.MkdirTemp</code>（临时目录），两者会自动生成唯一名称（避免冲突）、默认创建在系统临时目录，配合 <code>defer</code> 可确保程序结束后自动清理，避免临时资源残留。</p>
+<p><strong>核心概念</strong></p>
+<ol>
+<li><strong>临时文件 &#x2F; 目录的核心特性：</strong><ul>
+<li>自动唯一命名：生成的文件名 &#x2F; 目录名带随机后缀（如 <code>sample239465123</code>），避免多进程 &#x2F; 多实例冲突；</li>
+<li>系统默认路径：默认创建在系统临时目录（Unix：<code>/tmp</code>，Windows：<code>C:\Users\用户名\AppData\Local\Temp</code>）；</li>
+<li>自动清理：必须手动删除或用 <code>defer</code> 延迟删除（否则会残留）；</li>
+</ul>
+</li>
+<li><strong>核心函数：</strong><ul>
+<li><code>os.CreateTemp(dir string, prefix string) (*os.File, error)</code>：创建临时文件；</li>
+<li><code>os.MkdirTemp(dir string, prefix string) (string, error)</code>：创建临时目录；</li>
+<li><code>os.Remove(path string)</code>：删除文件（临时文件用）；</li>
+<li><code>os.RemoveAll(path string)</code>：递归删除目录及内容（临时目录用）。</li>
+</ul>
+</li>
+</ol>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> main<br><br><span class="hljs-keyword">import</span> (<br>    <span class="hljs-string">&quot;fmt&quot;</span><br>    <span class="hljs-string">&quot;os&quot;</span><br>    <span class="hljs-string">&quot;path/filepath&quot;</span><br>)<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">checkTmp</span><span class="hljs-params">(e <span class="hljs-type">error</span>)</span></span> &#123;<br>    <span class="hljs-keyword">if</span> e != <span class="hljs-literal">nil</span> &#123;<br>       <span class="hljs-built_in">panic</span>(e)<br>    &#125;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br><br>    f, err := os.CreateTemp(<span class="hljs-string">&quot;&quot;</span>, <span class="hljs-string">&quot;sample&quot;</span>)<br>    checkTmp(err)<br><br>    fmt.Println(<span class="hljs-string">&quot;Temp file name:&quot;</span>, f.Name())<br><br>    <span class="hljs-keyword">defer</span> os.Remove(f.Name())<br><br>    _, err = f.Write([]<span class="hljs-type">byte</span>&#123;<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>&#125;)<br>    checkTmp(err)<br><br>    dname, err := os.MkdirTemp(<span class="hljs-string">&quot;&quot;</span>, <span class="hljs-string">&quot;sampledir&quot;</span>)<br>    fmt.Println(<span class="hljs-string">&quot;Temp dir name:&quot;</span>, dname)<br><br>    <span class="hljs-keyword">defer</span> os.RemoveAll(dname)<br><br>    fname := filepath.Join(dname, <span class="hljs-string">&quot;file1&quot;</span>)<br>    err = os.WriteFile(fname, []<span class="hljs-type">byte</span>&#123;<span class="hljs-number">1</span>, <span class="hljs-number">2</span>&#125;, <span class="hljs-number">0666</span>)<br>    checkTmp(err)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>关键注意点</strong></p>
+<ol>
+<li><strong>必须手动清理临时资源</strong>：<ul>
+<li><code>CreateTemp</code>&#x2F;<code>MkdirTemp</code> 不会自动删除临时文件 &#x2F; 目录，程序结束后会残留（占用磁盘空间）；</li>
+<li>标准做法：创建后立即用 <code>defer</code> 延迟删除（如 <code>defer os.Remove(f.Name())</code>），确保无论程序正常结束还是报错，都会清理。</li>
+</ul>
+</li>
+<li><strong>清理函数的选择</strong>：<ul>
+<li>临时文件：用 <code>os.Remove(path)</code>（删除单个文件，高效）；</li>
+<li>临时目录：用 <code>os.RemoveAll(path)</code>（递归删除目录及所有内容，即使目录非空）；</li>
+</ul>
+</li>
+<li><strong>文件名 &#x2F; 目录名的唯一性</strong>：<ul>
+<li>前缀 <code>prefix</code> 仅用于标识，随机后缀是确保唯一性的核心（避免多进程同时创建同名临时资源）；</li>
+<li>无需手动设计唯一名称，依赖系统生成即可。</li>
+</ul>
+</li>
+<li><strong>指定自定义临时目录</strong>：<ul>
+<li>若需将临时文件 &#x2F; 目录创建在自定义目录（如 <code>./app/tmp</code>），需确保该目录已存在（可先用 <code>os.MkdirAll</code> 创建）；</li>
+<li>示例：<code>os.CreateTemp(&quot;./app/tmp&quot;, &quot;sample&quot;)</code> → 需先 <code>os.MkdirAll(&quot;./app/tmp&quot;, 0755)</code>。</li>
+</ul>
+</li>
+<li><strong>临时文件的权限控制</strong>：<ul>
+<li>默认权限仅当前用户可访问（Unix 0600&#x2F;0700），若需其他用户访问，可在创建后用 <code>os.Chmod</code> 修改权限（如 <code>os.Chmod(f.Name(), 0644)</code>）；</li>
+<li>敏感临时数据（如密码、密钥）建议保持默认权限，避免泄露。</li>
+</ul>
+</li>
+</ol>
+<h2 id="26-单元测试和基准测试"><a href="#26-单元测试和基准测试" class="headerlink" title="26.单元测试和基准测试"></a>26.单元测试和基准测试</h2><p><strong>核心概念与规范</strong></p>
+<p><strong>1. 测试文件与函数规范（Go 内置约定，必须遵守）</strong></p>
+<table>
+<thead>
+<tr>
+<th>测试类型</th>
+<th>文件命名规则</th>
+<th>函数名规则</th>
+<th>函数参数</th>
+<th>核心用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>单元测试</td>
+<td>以 <code>_test.go</code> 结尾</td>
+<td>以 <code>Test</code> 开头（首字母大写）</td>
+<td><code>(t *testing.T)</code></td>
+<td>验证函数逻辑是否正确</td>
+</tr>
+<tr>
+<td>基准测试</td>
+<td>以 <code>_test.go</code> 结尾</td>
+<td>以 <code>Benchmark</code> 开头</td>
+<td><code>(b *testing.B)</code></td>
+<td>测量函数执行性能</td>
+</tr>
+<tr>
+<td>注意</td>
+<td>测试文件需与被测试文件在同一包下</td>
+<td>函数名后必须跟大写字母（如 <code>TestIntMin</code> 而非 <code>Testintmin</code>）</td>
+<td><code>*testing.T</code>&#x2F;<code>*testing.B</code> 是测试框架的核心对象，用于报告错误、控制测试流程</td>
+<td></td>
+</tr>
+</tbody></table>
+<p><strong>2.核心工具命令（终端执行）</strong></p>
+<ul>
+<li>执行单元测试：<code>go test -v</code>（<code>-v</code> 显示详细测试日志，不加则只显示是否通过）；</li>
+<li>执行基准测试：<code>go test -bench=.</code>（<code>.</code> 表示运行所有基准测试，<code>-benchmem</code> 可显示内存分配情况）；</li>
+<li>同时执行单元测试和基准测试：<code>go test -v -bench=.</code>。</li>
+</ul>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> main<br><br><span class="hljs-keyword">import</span> (<br>    <span class="hljs-string">&quot;fmt&quot;</span><br>    <span class="hljs-string">&quot;testing&quot;</span><br>)<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">IntMin</span><span class="hljs-params">(a, b <span class="hljs-type">int</span>)</span></span> <span class="hljs-type">int</span> &#123;<br>    <span class="hljs-keyword">if</span> a &lt; b &#123;<br>       <span class="hljs-keyword">return</span> a<br>    &#125;<br>    <span class="hljs-keyword">return</span> b<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">TestIntMinBasic</span><span class="hljs-params">(t *testing.T)</span></span> &#123;<br>    ans := IntMin(<span class="hljs-number">2</span>, <span class="hljs-number">-2</span>)<br>    <span class="hljs-keyword">if</span> ans != <span class="hljs-number">-2</span> &#123;<br><br>       t.Errorf(<span class="hljs-string">&quot;IntMin(2, -2) = %d; want -2&quot;</span>, ans)<br>    &#125;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">TestIntMinTableDriven</span><span class="hljs-params">(t *testing.T)</span></span> &#123;<br>    <span class="hljs-keyword">var</span> tests = []<span class="hljs-keyword">struct</span> &#123;<br>       a, b <span class="hljs-type">int</span><br>       want <span class="hljs-type">int</span><br>    &#125;&#123;<br>       &#123;<span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>&#125;,<br>       &#123;<span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>&#125;,<br>       &#123;<span class="hljs-number">2</span>, <span class="hljs-number">-2</span>, <span class="hljs-number">-2</span>&#125;,<br>       &#123;<span class="hljs-number">0</span>, <span class="hljs-number">-1</span>, <span class="hljs-number">-1</span>&#125;,<br>       &#123;<span class="hljs-number">-1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">-1</span>&#125;,<br>    &#125;<br><br>    <span class="hljs-keyword">for</span> _, tt := <span class="hljs-keyword">range</span> tests &#123;<br><br>       testname := fmt.Sprintf(<span class="hljs-string">&quot;%d,%d&quot;</span>, tt.a, tt.b)<br>       t.Run(testname, <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(t *testing.T)</span></span> &#123;<br>          ans := IntMin(tt.a, tt.b)<br>          <span class="hljs-keyword">if</span> ans != tt.want &#123;<br>             t.Errorf(<span class="hljs-string">&quot;got %d, want %d&quot;</span>, ans, tt.want)<br>          &#125;<br>       &#125;)<br>    &#125;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">BenchmarkIntMin</span><span class="hljs-params">(b *testing.B)</span></span> &#123;<br><br>    <span class="hljs-keyword">for</span> i := <span class="hljs-number">0</span>; i &lt; b.N; i++ &#123;<br>       IntMin(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>)<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p> <strong>测试命令常用参数</strong></p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>用途</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>-v</code></td>
+<td>显示详细测试日志（单元测试）</td>
+<td><code>go test -v</code></td>
+</tr>
+<tr>
+<td><code>-run 正则</code></td>
+<td>只执行匹配的单元测试（支持正则）</td>
+<td><code>go test -run TestIntMinTableDriven</code></td>
+</tr>
+<tr>
+<td><code>-bench 正则</code></td>
+<td>只执行匹配的基准测试</td>
+<td><code>go test -bench=IntMin</code></td>
+</tr>
+<tr>
+<td><code>-benchmem</code></td>
+<td>显示基准测试的内存分配情况</td>
+<td><code>go test -bench=. -benchmem</code></td>
+</tr>
+<tr>
+<td><code>-count n</code></td>
+<td>执行 n 次测试（取平均值，提高稳定性）</td>
+<td><code>go test -bench=. -count 5</code></td>
+</tr>
+<tr>
+<td><code>-cpu n</code></td>
+<td>指定测试使用的 CPU 核心数</td>
+<td><code>go test -bench=. -cpu 4</code></td>
+</tr>
+</tbody></table>
+<h2 id="27-HTTP-客户端"><a href="#27-HTTP-客户端" class="headerlink" title="27.HTTP 客户端"></a>27.HTTP 客户端</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> main<br><br><span class="hljs-keyword">import</span> (<br>    <span class="hljs-string">&quot;bufio&quot;</span><br>    <span class="hljs-string">&quot;fmt&quot;</span><br>    <span class="hljs-string">&quot;net/http&quot;</span><br>)<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>    <span class="hljs-comment">// 发送 GET 请求：http.Get(url) → 核心 API，内部已封装默认的 HTTP 客户端</span><br>    <span class="hljs-comment">//   - 参数：目标 URL（必须带协议头，如 http:// 或 https://，否则报错）；</span><br>    <span class="hljs-comment">//   - 返回值：</span><br>    <span class="hljs-comment">//     - *http.Response：响应对象（包含状态、头、体等所有响应信息）；</span><br>    <span class="hljs-comment">//     - error：请求过程中的错误（如网络不通、URL 格式错误、超时等）；</span><br>    resp, err := http.Get(<span class="hljs-string">&quot;http://gobyexample.com&quot;</span>)<br>    <span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>       <span class="hljs-built_in">panic</span>(err)<br>    &#125;<br><br>    <span class="hljs-comment">// 延迟关闭响应体：核心！避免连接泄漏（必须写，且要在检查 err 之后）</span><br>    <span class="hljs-comment">//   - 原因：resp.Body 是 TCP 连接的一部分，若不关闭，连接会一直占用，直到达到最大连接数导致后续请求失败；</span><br>    <span class="hljs-comment">//   - 位置：必须在 err 检查之后（若请求失败，resp 为 nil，调用 resp.Body.Close() 会 panic）；</span><br>    <span class="hljs-keyword">defer</span> resp.Body.Close()<br><br>    fmt.Println(<span class="hljs-string">&quot;Response status:&quot;</span>, resp.Status)<br><br>    <span class="hljs-comment">// 创建扫描器：从 resp.Body 中逐行读取响应体（resp.Body 实现 io.Reader 接口，可被 scanner 读取）</span><br>    scanner := bufio.NewScanner(resp.Body)<br>    <span class="hljs-keyword">for</span> i := <span class="hljs-number">0</span>; scanner.Scan() &amp;&amp; i &lt; <span class="hljs-number">5</span>; i++ &#123;<br>       <span class="hljs-comment">// scanner.Text() → 获取当前行的文本内容（已去除末尾的换行符）</span><br>       fmt.Println(scanner.Text())<br>    &#125;<br><br>    <span class="hljs-keyword">if</span> err := scanner.Err(); err != <span class="hljs-literal">nil</span> &#123;<br>       <span class="hljs-built_in">panic</span>(err)<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="28-HTTP-服务端"><a href="#28-HTTP-服务端" class="headerlink" title="28.HTTP 服务端"></a>28.HTTP 服务端</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> main<br><br><span class="hljs-keyword">import</span> (<br>    <span class="hljs-string">&quot;fmt&quot;</span><br>    <span class="hljs-string">&quot;net/http&quot;</span><br>)<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">hello</span><span class="hljs-params">(w http.ResponseWriter, req *http.Request)</span></span> &#123;<br><br>    fmt.Fprintf(w, <span class="hljs-string">&quot;hello\n&quot;</span>)<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">headers</span><span class="hljs-params">(w http.ResponseWriter, req *http.Request)</span></span> &#123;<br><br>    <span class="hljs-keyword">for</span> name, headers := <span class="hljs-keyword">range</span> req.Header &#123;<br>       <span class="hljs-keyword">for</span> _, h := <span class="hljs-keyword">range</span> headers &#123;<br>          fmt.Fprintf(w, <span class="hljs-string">&quot;%v: %v\n&quot;</span>, name, h)<br>       &#125;<br>    &#125;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br><br>    <span class="hljs-comment">// 注册路由：将 URL 路径 &quot;/hello&quot; 与 hello 处理函数绑定</span><br>    <span class="hljs-comment">// 当客户端访问 http://localhost:8090/hello 时，会调用 hello 函数</span><br>    http.HandleFunc(<span class="hljs-string">&quot;/hello&quot;</span>, hello)<br><br>    <span class="hljs-comment">// 注册路由：将 URL 路径 &quot;/headers&quot; 与 headers 处理函数绑定</span><br>    http.HandleFunc(<span class="hljs-string">&quot;/headers&quot;</span>, headers)<br><br>    http.ListenAndServe(<span class="hljs-string">&quot;:8090&quot;</span>, <span class="hljs-literal">nil</span>)<br>&#125;<br></code></pre></td></tr></table></figure>
 
                 
               </div>
