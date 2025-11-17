@@ -19,23 +19,22 @@
   <meta name="author" content="zianCoderMan">
   <meta name="keywords" content="">
   
-    <meta name="description" content="问题与示例：给定一个未排序的整数数组 nums ，找出数字连续的最长序列（不要求序列元素在原数组中连续）的长度。">
+    <meta name="description" content="Problem StatementWrite a function ReverseString that takes a string and returns the string reversed. Function Signature1func ReverseString(s string) string  Input Format A single line containing a str">
 <meta property="og:type" content="article">
-<meta property="og:title" content="128. 最长连续序列">
-<meta property="og:url" content="https://ziancoderman.github.io/2025/11/05/128-%E6%9C%80%E9%95%BF%E8%BF%9E%E7%BB%AD%E5%BA%8F%E5%88%97/index.html">
+<meta property="og:title" content="Challenge">
+<meta property="og:url" content="https://ziancoderman.github.io/2025/11/05/Challenge%20#2_Reverse%20a%20String/index.html">
 <meta property="og:site_name" content="zianCoderMan">
-<meta property="og:description" content="问题与示例：给定一个未排序的整数数组 nums ，找出数字连续的最长序列（不要求序列元素在原数组中连续）的长度。">
+<meta property="og:description" content="Problem StatementWrite a function ReverseString that takes a string and returns the string reversed. Function Signature1func ReverseString(s string) string  Input Format A single line containing a str">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2025-11-05T06:46:34.000Z">
-<meta property="article:modified_time" content="2025-11-14T02:52:43.075Z">
+<meta property="article:published_time" content="2025-11-05T05:34:41.000Z">
+<meta property="article:modified_time" content="2025-11-17T03:53:34.352Z">
 <meta property="article:author" content="zianCoderMan">
-<meta property="article:tag" content="LeetCode Top100">
-<meta property="article:tag" content="哈希">
+<meta property="article:tag" content="Go Interview Practice">
 <meta name="twitter:card" content="summary_large_image">
   
   
   
-  <title>128. 最长连续序列 - zianCoderMan</title>
+  <title>Challenge - zianCoderMan</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -201,7 +200,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="128. 最长连续序列"></span>
+            <span id="subtitle" data-typed-text="Challenge"></span>
           
         </div>
 
@@ -212,7 +211,7 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2025-11-05 14:46" pubdate>
+        <time datetime="2025-11-05 13:34" pubdate>
           2025年11月5日 下午
         </time>
       </span>
@@ -224,7 +223,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          640 字
+          83 字
         
       </span>
     
@@ -235,7 +234,7 @@
         
         
         
-          6 分钟
+          1 分钟
         
       </span>
     
@@ -272,66 +271,34 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">128. 最长连续序列</h1>
+            <h1 id="seo-header">Challenge</h1>
             
             
               <div class="markdown-body">
                 
-                <h4 id="问题与示例："><a href="#问题与示例：" class="headerlink" title="问题与示例："></a>问题与示例：</h4><p>给定一个未排序的整数数组 <code>nums</code> ，找出数字连续的最长序列（不要求序列元素在原数组中连续）的长度。</p>
-<span id="more"></span>
+                <h2 id="Problem-Statement"><a href="#Problem-Statement" class="headerlink" title="Problem Statement"></a>Problem Statement</h2><p>Write a function <code>ReverseString</code> that takes a string and returns the string reversed.</p>
+<h2 id="Function-Signature"><a href="#Function-Signature" class="headerlink" title="Function Signature"></a>Function Signature</h2><figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs golang"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">ReverseString</span><span class="hljs-params">(s <span class="hljs-type">string</span>)</span></span> <span class="hljs-type">string</span><br></code></pre></td></tr></table></figure>
 
-<p>请你设计并实现时间复杂度为 <code>O(n)</code> 的算法解决此问题。</p>
-<p><strong>示例 1：</strong></p>
-<figure class="highlight accesslog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs accesslog">输入：nums = <span class="hljs-string">[100,4,200,1,3,2]</span><br>输出：<span class="hljs-number">4</span><br>解释：最长数字连续序列是 <span class="hljs-string">[1, 2, 3, 4]</span>。它的长度为 <span class="hljs-number">4</span>。<br></code></pre></td></tr></table></figure>
+<h2 id="Input-Format"><a href="#Input-Format" class="headerlink" title="Input Format"></a>Input Format</h2><ul>
+<li>A single line containing a string <code>s</code>.</li>
+</ul>
+<h2 id="Output-Format"><a href="#Output-Format" class="headerlink" title="Output Format"></a>Output Format</h2><ul>
+<li>The reversed string.</li>
+</ul>
+<h2 id="Constraints"><a href="#Constraints" class="headerlink" title="Constraints"></a>Constraints</h2><ul>
+<li><code>0 &lt;= len(s) &lt;= 1000</code></li>
+<li>The string may contain ASCII letters, digits, and special characters.</li>
+</ul>
+<h2 id="Sample-Input-and-Output"><a href="#Sample-Input-and-Output" class="headerlink" title="Sample Input and Output"></a>Sample Input and Output</h2><h3 id="Sample-Input-1"><a href="#Sample-Input-1" class="headerlink" title="Sample Input 1"></a>Sample Input 1</h3><figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ebnf"><span class="hljs-attribute">hello</span><br></code></pre></td></tr></table></figure>
 
-<p><strong>示例 2：</strong></p>
-<figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs dns">输入：nums = [<span class="hljs-number">0,3,7,2</span>,<span class="hljs-number">5,8,4,6</span>,<span class="hljs-number">0</span>,<span class="hljs-number">1</span>]<br>输出：<span class="hljs-number">9</span><br></code></pre></td></tr></table></figure>
+<h3 id="Sample-Output-1"><a href="#Sample-Output-1" class="headerlink" title="Sample Output 1"></a>Sample Output 1</h3><figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ebnf"><span class="hljs-attribute">olleh</span><br></code></pre></td></tr></table></figure>
 
-<p><strong>示例 3：</strong></p>
-<figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs dns">输入：nums = [<span class="hljs-number">1,0,1,2</span>]<br>输出：<span class="hljs-number">3</span><br></code></pre></td></tr></table></figure>
+<h3 id="Sample-Input-2"><a href="#Sample-Input-2" class="headerlink" title="Sample Input 2"></a>Sample Input 2</h3><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs kotlin">Go <span class="hljs-keyword">is</span> <span class="hljs-function"><span class="hljs-keyword">fun</span>!</span><br></code></pre></td></tr></table></figure>
 
-<h4 id="题解："><a href="#题解：" class="headerlink" title="题解："></a>题解：</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs java">func <span class="hljs-title function_">longestConsecutive</span><span class="hljs-params">(nums []<span class="hljs-type">int</span>)</span> <span class="hljs-type">int</span> &#123;<br>    <span class="hljs-comment">// 步骤 1：用 map 实现 Set，存储所有不重复的数字</span><br>    numSet := map[<span class="hljs-type">int</span>]bool&#123;&#125;<br>    <span class="hljs-keyword">for</span> _, num := range nums &#123;<br>        numSet[num] = <span class="hljs-literal">true</span> <span class="hljs-comment">// 重复的 num 会覆盖，最终 Set 中只存唯一值</span><br>    &#125;<br><br>    longestStreak := <span class="hljs-number">0</span> <span class="hljs-comment">// 记录最长连续序列长度，初始为 0</span><br><br>    <span class="hljs-comment">// 步骤 2：遍历 Set 中的每一个数字（去重后的所有数字）</span><br>    <span class="hljs-keyword">for</span> num := range numSet &#123;<br>        <span class="hljs-comment">// 关键判断：当前数字是不是序列的「起点」？</span><br>        <span class="hljs-comment">// 只有当 num-1 不在 Set 中时，num 才是起点（避免重复遍历非起点）</span><br>        <span class="hljs-keyword">if</span> !numSet[num-<span class="hljs-number">1</span>] &#123;<br>            currentNum := num       <span class="hljs-comment">// 从起点开始，当前遍历的数字</span><br>            currentStreak := <span class="hljs-number">1</span>      <span class="hljs-comment">// 当前序列的长度，起点本身算 1 个</span><br><br>            <span class="hljs-comment">// 步骤 3：从起点向后找连续数字（num+1、num+2...）</span><br>            <span class="hljs-comment">// 只要 currentNum+1 在 Set 中，就说明序列还能延长</span><br>            <span class="hljs-keyword">for</span> numSet[currentNum+<span class="hljs-number">1</span>] &#123;<br>                currentNum++       <span class="hljs-comment">// 向后移动一位</span><br>                currentStreak++    <span class="hljs-comment">// 序列长度 +1</span><br>            &#125;<br><br>            <span class="hljs-comment">// 步骤 4：更新最长序列长度</span><br>            <span class="hljs-keyword">if</span> longestStreak &lt; currentStreak &#123;<br>                longestStreak = currentStreak<br>            &#125;<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> longestStreak <span class="hljs-comment">// 返回结果</span><br>&#125;<br></code></pre></td></tr></table></figure>
+<h3 id="Sample-Output-2"><a href="#Sample-Output-2" class="headerlink" title="Sample Output 2"></a>Sample Output 2</h3><figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs diff"><span class="hljs-addition">!nuf si oG</span><br></code></pre></td></tr></table></figure>
 
-<p>结合例子 <code>num_set = {100,4,200,1,3,2}</code> 详细走一遍：</p>
-<ol>
-<li>遍历到 <code>100</code>：<ul>
-<li>判断 <code>100-1=99</code> 是否在集合中？否 → 是起始元素；</li>
-<li><code>currentNum=100</code>，<code>currentStreak=1</code>；</li>
-<li>检查 <code>100+1=101</code> 是否在集合中？否 → 循环结束；</li>
-<li><code>longestStreak = max(0,1) = 1</code>。</li>
-</ul>
-</li>
-<li>遍历到 <code>4</code>：<ul>
-<li>判断 <code>4-1=3</code> 是否在集合中？是 → 不是起始元素，跳过。</li>
-</ul>
-</li>
-<li>遍历到 <code>200</code>：<ul>
-<li>判断 <code>200-1=199</code> 是否在集合中？否 → 是起始元素；</li>
-<li><code>currentNum=200</code>，<code>currentStreak=1</code>；</li>
-<li>检查 <code>201</code> 不在集合 → 循环结束；</li>
-<li><code>longestStreak = max(1,1) = 1</code>。</li>
-</ul>
-</li>
-<li>遍历到 <code>1</code>：<ul>
-<li>判断 <code>1-1=0</code> 是否在集合中？否 → 是起始元素；</li>
-<li><code>currentNum=1</code>，<code>currentStreak=1</code>；</li>
-<li>检查 <code>1+1=2</code> 在集合中 → <code>currentNum=2</code>，<code>currentStreak=2</code>；</li>
-<li>检查 <code>2+1=3</code> 在集合中 → <code>currentNum=3</code>，<code>currentStreak=3</code>；</li>
-<li>检查 <code>3+1=4</code> 在集合中 → <code>currentNum=4</code>，<code>currentStreak=4</code>；</li>
-<li>检查 <code>4+1=5</code> 不在集合 → 循环结束；</li>
-<li><code>longestStreak = max(1,4) = 4</code>。</li>
-</ul>
-</li>
-<li>遍历到 <code>3</code>：<ul>
-<li>判断 <code>3-1=2</code> 在集合中 → 不是起始元素，跳过。</li>
-</ul>
-</li>
-<li>遍历到 <code>2</code>：<ul>
-<li>判断 <code>2-1=1</code> 在集合中 → 不是起始元素，跳过。</li>
-</ul>
-</li>
-</ol>
-<p>最终 <code>longestStreak=4</code>，正确。</p>
+<h2 id="Code"><a href="#Code" class="headerlink" title="Code"></a>Code</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> main<br><br><span class="hljs-keyword">import</span> (<br>	<span class="hljs-string">&quot;bufio&quot;</span><br>	<span class="hljs-string">&quot;fmt&quot;</span><br>	<span class="hljs-string">&quot;os&quot;</span><br>)<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>	<span class="hljs-comment">// Read input from standard input</span><br>	scanner := bufio.NewScanner(os.Stdin)<br>	<span class="hljs-keyword">if</span> scanner.Scan() &#123;<br>		input := scanner.Text()<br><br>		<span class="hljs-comment">// Call the ReverseString function</span><br>		output := ReverseString(input)<br><br>		<span class="hljs-comment">// Print the result</span><br>		fmt.Println(output)<br>	&#125;<br>&#125;<br><br><span class="hljs-comment">// ReverseString returns the reversed string of s.</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">ReverseString</span><span class="hljs-params">(s <span class="hljs-type">string</span>)</span></span> <span class="hljs-type">string</span> &#123;<br>	<span class="hljs-comment">// <span class="hljs-doctag">TODO:</span> Implement the function</span><br>	r := []<span class="hljs-type">byte</span>(s)<br>	<span class="hljs-keyword">for</span> i,j := <span class="hljs-number">0</span>,<span class="hljs-built_in">len</span>(r) - <span class="hljs-number">1</span>;i &lt; j; i,j = i+<span class="hljs-number">1</span>,j<span class="hljs-number">-1</span>&#123;<br>	    r[i],r[j] = r[j],r[i]<br>	&#125;<br>	<span class="hljs-keyword">return</span> <span class="hljs-type">string</span>(r)<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
 
                 
               </div>
@@ -350,7 +317,7 @@
     
       <span class="category-chain">
         
-  <a href="/categories/%E7%AE%97%E6%B3%95%E5%88%B7%E9%A2%98/" class="category-chain-item">算法刷题</a>
+  <a href="/categories/Go/" class="category-chain-item">Go</a>
   
   
 
@@ -365,9 +332,7 @@
     <div class="post-meta">
       <i class="iconfont icon-tags"></i>
       
-        <a href="/tags/LeetCode-Top100/" class="print-no-link">#LeetCode Top100</a>
-      
-        <a href="/tags/%E5%93%88%E5%B8%8C/" class="print-no-link">#哈希</a>
+        <a href="/tags/Go-Interview-Practice/" class="print-no-link">#Go Interview Practice</a>
       
     </div>
   
@@ -381,9 +346,9 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2025/11/06/283-%E7%A7%BB%E5%8A%A8%E9%9B%B6/" title="283. 移动零">
+                      <a href="/2025/11/05/Challenge%20#3_Employee%20Data%20Management/" title="Challenge">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">283. 移动零</span>
+                        <span class="hidden-mobile">Challenge</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     
@@ -391,8 +356,8 @@
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2025/11/05/49-%E5%AD%97%E6%AF%8D%E5%BC%82%E4%BD%8D%E8%AF%8D%E5%88%86%E7%BB%84/" title="49. 字母异位词分组">
-                        <span class="hidden-mobile">49. 字母异位词分组</span>
+                      <a href="/2025/11/05/Challenge%20#1_Sum%20of%20Two%20Numbers/" title="Challenge">
+                        <span class="hidden-mobile">Challenge</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
