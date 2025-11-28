@@ -1,0 +1,696 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="zianCoderMan">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="Solution问题 使用 Go 接口实现一个计算各种几何形状属性的系统。这项挑战的重点在于理解并正确实现 Go 的接口系统，以实现多态性。 要求 1.实现一个Shape包含以下方法的接口：  Area() float64计算图形的面积 Perimeter() float64计算图形的周长（或圆周长） String() string返回形状的字符串表示形式（实现 fmt.Stringer）  2.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="#10.多态形状计算器">
+<meta property="og:url" content="https://ziancoderman.github.io/2025/11/28/10-%E5%A4%9A%E6%80%81%E5%BD%A2%E7%8A%B6%E8%AE%A1%E7%AE%97%E5%99%A8/index.html">
+<meta property="og:site_name" content="zianCoderMan">
+<meta property="og:description" content="Solution问题 使用 Go 接口实现一个计算各种几何形状属性的系统。这项挑战的重点在于理解并正确实现 Go 的接口系统，以实现多态性。 要求 1.实现一个Shape包含以下方法的接口：  Area() float64计算图形的面积 Perimeter() float64计算图形的周长（或圆周长） String() string返回形状的字符串表示形式（实现 fmt.Stringer）  2.">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-11-28T02:10:58.000Z">
+<meta property="article:modified_time" content="2025-11-28T02:14:29.650Z">
+<meta property="article:author" content="zianCoderMan">
+<meta property="article:tag" content="Go Interview Practice">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>#10.多态形状计算器 - zianCoderMan</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"ziancoderman.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>zianCoderMan&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="#10.多态形状计算器"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-11-28 10:10" pubdate>
+          2025年11月28日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.1k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          18 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">#10.多态形状计算器</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="Solution"><a href="#Solution" class="headerlink" title="Solution"></a>Solution</h2><p><strong>问题</strong></p>
+<p>使用 Go 接口实现一个计算各种几何形状属性的系统。这项挑战的重点在于理解并正确实现 Go 的接口系统，以实现多态性。</p>
+<p><strong>要求</strong></p>
+<p>1.实现一个<code>Shape</code>包含以下方法的接口：</p>
+<ul>
+<li><code>Area() float64</code>计算图形的面积</li>
+<li><code>Perimeter() float64</code>计算图形的周长（或圆周长）</li>
+<li><code>String() string</code>返回形状的字符串表示形式（实现 fmt.Stringer）</li>
+</ul>
+<p>2.具体实现以下形式：</p>
+<ul>
+<li><code>Rectangle</code>：由宽度和高度定义</li>
+<li><code>Circle</code>由半径定义</li>
+<li><code>Triangle</code>由三条边定义（使用海伦公式计算面积）</li>
+</ul>
+<p>3.实施一个<code>ShapeCalculator</code>可以实现以下功能的方案：</p>
+<ul>
+<li>取任意形状并返回其属性</li>
+<li>计算多个图形的总面积</li>
+<li>从一组图形中找出面积最大的图形</li>
+<li>按面积升序或降序对形状进行排序</li>
+</ul>
+<p><strong>解答</strong></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// Package challenge10 contains the solution for Challenge 10.</span><br><span class="hljs-keyword">package</span> challenge10<br><br><span class="hljs-keyword">import</span> (<br>	<span class="hljs-string">&quot;fmt&quot;</span><br>	<span class="hljs-comment">// Add any necessary imports here</span><br>	<span class="hljs-string">&quot;math&quot;</span><br>	<span class="hljs-string">&quot;errors&quot;</span><br>	<span class="hljs-string">&quot;sort&quot;</span><br>)<br><br><span class="hljs-comment">// Shape interface defines methods that all shapes must implement</span><br><span class="hljs-keyword">type</span> Shape <span class="hljs-keyword">interface</span> &#123;<br>	Area() <span class="hljs-type">float64</span><br>	Perimeter() <span class="hljs-type">float64</span><br>	fmt.Stringer <span class="hljs-comment">// Includes String() string method</span><br>&#125;<br><br><span class="hljs-comment">// Rectangle represents a four-sided shape with perpendicular sides</span><br><span class="hljs-keyword">type</span> Rectangle <span class="hljs-keyword">struct</span> &#123;<br>	Width  <span class="hljs-type">float64</span><br>	Height <span class="hljs-type">float64</span><br>&#125;<br><br><span class="hljs-comment">// NewRectangle creates a new Rectangle with validation</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">NewRectangle</span><span class="hljs-params">(width, height <span class="hljs-type">float64</span>)</span></span> (*Rectangle, <span class="hljs-type">error</span>) &#123;<br>	<span class="hljs-comment">// <span class="hljs-doctag">TODO:</span> Implement validation and construction</span><br>	<span class="hljs-keyword">if</span> width &lt;= <span class="hljs-number">0</span> || height &lt;= <span class="hljs-number">0</span>&#123;<br>		<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>,errors.New(<span class="hljs-string">&quot;width and height must be positive&quot;</span>)<br>	&#125;<br>	<span class="hljs-keyword">return</span> &amp;Rectangle&#123;width,height&#125;, <span class="hljs-literal">nil</span><br>&#125;<br><br><span class="hljs-comment">// Area calculates the area of the rectangle</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(r *Rectangle)</span></span> Area() <span class="hljs-type">float64</span> &#123;<br>	<span class="hljs-comment">// <span class="hljs-doctag">TODO:</span> Implement area calculation</span><br>	<span class="hljs-keyword">return</span> r.Width * r.Height<br>&#125;<br><br><span class="hljs-comment">// Perimeter calculates the perimeter of the rectangle</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(r *Rectangle)</span></span> Perimeter() <span class="hljs-type">float64</span> &#123;<br>	<span class="hljs-comment">// <span class="hljs-doctag">TODO:</span> Implement perimeter calculation</span><br>	<span class="hljs-keyword">return</span> (r.Width + r.Height) * <span class="hljs-number">2</span><br>&#125;<br><br><span class="hljs-comment">// String returns a string representation of the rectangle</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(r *Rectangle)</span></span> String() <span class="hljs-type">string</span> &#123;<br>	<span class="hljs-comment">// <span class="hljs-doctag">TODO:</span> Implement string representation</span><br>	<span class="hljs-keyword">return</span> fmt.Sprintf(<span class="hljs-string">&quot;Rectangle(width=%.2f, height=%.2f)&quot;</span>, r.Width, r.Height)<br>&#125;<br><br><span class="hljs-comment">// Circle represents a perfectly round shape</span><br><span class="hljs-keyword">type</span> Circle <span class="hljs-keyword">struct</span> &#123;<br>	Radius <span class="hljs-type">float64</span><br>&#125;<br><br><span class="hljs-comment">// NewCircle creates a new Circle with validation</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">NewCircle</span><span class="hljs-params">(radius <span class="hljs-type">float64</span>)</span></span> (*Circle, <span class="hljs-type">error</span>) &#123;<br>	<span class="hljs-comment">// <span class="hljs-doctag">TODO:</span> Implement validation and construction</span><br>	<span class="hljs-keyword">if</span> radius &lt;= <span class="hljs-number">0</span> &#123;<br>		<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>, errors.New(<span class="hljs-string">&quot;radius must be positive&quot;</span>)<br>	&#125;<br>	<span class="hljs-keyword">return</span> &amp;Circle&#123;radius&#125;, <span class="hljs-literal">nil</span><br>&#125;<br><br><span class="hljs-comment">// Area calculates the area of the circle</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(c *Circle)</span></span> Area() <span class="hljs-type">float64</span> &#123;<br>	<span class="hljs-comment">// <span class="hljs-doctag">TODO:</span> Implement area calculation</span><br>	<span class="hljs-keyword">return</span> math.Pi * math.Pow(c.Radius,<span class="hljs-number">2</span>)<br>&#125;<br><br><span class="hljs-comment">// Perimeter calculates the circumference of the circle</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(c *Circle)</span></span> Perimeter() <span class="hljs-type">float64</span> &#123;<br>	<span class="hljs-comment">// <span class="hljs-doctag">TODO:</span> Implement perimeter calculation</span><br>	<span class="hljs-keyword">return</span> <span class="hljs-number">2</span> * math.Pi * c.Radius<br>&#125;<br><br><span class="hljs-comment">// String returns a string representation of the circle</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(c *Circle)</span></span> String() <span class="hljs-type">string</span> &#123;<br>	<span class="hljs-comment">// <span class="hljs-doctag">TODO:</span> Implement string representation</span><br>	<span class="hljs-keyword">return</span> fmt.Sprintf(<span class="hljs-string">&quot;Circle(Radius = %.2f)&quot;</span>, c.Radius)<br>&#125;<br><br><span class="hljs-comment">// Triangle represents a three-sided polygon</span><br><span class="hljs-keyword">type</span> Triangle <span class="hljs-keyword">struct</span> &#123;<br>	SideA <span class="hljs-type">float64</span><br>	SideB <span class="hljs-type">float64</span><br>	SideC <span class="hljs-type">float64</span><br>&#125;<br><br><span class="hljs-comment">// NewTriangle creates a new Triangle with validation</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">NewTriangle</span><span class="hljs-params">(a, b, c <span class="hljs-type">float64</span>)</span></span> (*Triangle, <span class="hljs-type">error</span>) &#123;<br>	<span class="hljs-comment">// <span class="hljs-doctag">TODO:</span> Implement validation and construction</span><br>	<span class="hljs-comment">// 提前声明 err，避免作用域问题（原错误：err 仅在 if 内定义）</span><br>	<span class="hljs-keyword">var</span> err <span class="hljs-type">error</span><br>	<span class="hljs-comment">// 校验边长为正数</span><br>	<span class="hljs-keyword">if</span> a &lt;= <span class="hljs-number">0</span> || b &lt;= <span class="hljs-number">0</span> || c &lt;= <span class="hljs-number">0</span> &#123;<br>		err = errors.New(<span class="hljs-string">&quot;all sides must be positive&quot;</span>)<br>		<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>, err<br>	&#125;<br>	<span class="hljs-keyword">if</span> a + b &lt;= c || a + c &lt;= b || b + c &lt;= a&#123;<br>		err = errors.New(<span class="hljs-string">&quot;sides do not satisfy triangle inequality&quot;</span>)<br>		<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>, err<br>	&#125;<br>	<span class="hljs-keyword">return</span> &amp;Triangle&#123;a,b,c&#125;, <span class="hljs-literal">nil</span><br>&#125;<br><br><span class="hljs-comment">// Area calculates the area of the triangle using Heron&#x27;s formula</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(t *Triangle)</span></span> Area() <span class="hljs-type">float64</span> &#123;<br>	p := (t.SideA + t.SideB + t.SideC) / <span class="hljs-number">2</span><br>	<span class="hljs-comment">// 防护浮点数精度问题，避免根号内为负数</span><br>	<span class="hljs-keyword">return</span> math.Sqrt(math.Max(<span class="hljs-number">0</span>, p*(p-t.SideA)*(p-t.SideB)*(p-t.SideC)))<br>&#125;<br><br><span class="hljs-comment">// Perimeter calculates the perimeter of the triangle</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(t *Triangle)</span></span> Perimeter() <span class="hljs-type">float64</span> &#123;<br>	<span class="hljs-comment">// <span class="hljs-doctag">TODO:</span> Implement perimeter calculation</span><br>	<span class="hljs-keyword">return</span> t.SideA + t.SideB + t.SideC<br>&#125;<br><br><span class="hljs-comment">// String returns a string representation of the triangle</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(t *Triangle)</span></span> String() <span class="hljs-type">string</span> &#123;<br>	<span class="hljs-comment">// <span class="hljs-doctag">TODO:</span> Implement string representation</span><br>	<span class="hljs-keyword">return</span> fmt.Sprintf(<span class="hljs-string">&quot;Triangle(sides=%.2f, %.2f, %.2f)&quot;</span>, t.SideA, t.SideB, t.SideC)<br>&#125;<br><br><span class="hljs-comment">// ShapeCalculator provides utility functions for shapes</span><br><span class="hljs-keyword">type</span> ShapeCalculator <span class="hljs-keyword">struct</span>&#123;&#125;<br><br><span class="hljs-comment">// NewShapeCalculator creates a new ShapeCalculator</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">NewShapeCalculator</span><span class="hljs-params">()</span></span> *ShapeCalculator &#123;<br>	<span class="hljs-comment">// <span class="hljs-doctag">TODO:</span> Implement constructor</span><br>	<span class="hljs-keyword">return</span> &amp;ShapeCalculator&#123;&#125;<br>&#125;<br><br><span class="hljs-comment">// PrintProperties prints the properties of a shape</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(sc *ShapeCalculator)</span></span> PrintProperties(s Shape) &#123;<br>	<span class="hljs-keyword">if</span> s == <span class="hljs-literal">nil</span> &#123;<br>		fmt.Println(<span class="hljs-string">&quot;nil shape&quot;</span>)<br>		<span class="hljs-keyword">return</span><br>	&#125;<br>	fmt.Printf(<span class="hljs-string">&quot;=== Shape Properties ===\n&quot;</span>)<br>	fmt.Printf(<span class="hljs-string">&quot;Type: %s\n&quot;</span>, s.String())       <span class="hljs-comment">// 调用指针接收者的 String()</span><br>	fmt.Printf(<span class="hljs-string">&quot;Area: %.2f\n&quot;</span>, s.Area())      <span class="hljs-comment">// 调用指针接收者的 Area()</span><br>	fmt.Printf(<span class="hljs-string">&quot;Perimeter: %.2f\n\n&quot;</span>, s.Perimeter()) <span class="hljs-comment">// 调用指针接收者的 Perimeter()</span><br>&#125;<br><br><br><span class="hljs-comment">// TotalArea calculates the sum of areas of all shapes</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(sc *ShapeCalculator)</span></span> TotalArea(shapes []Shape) <span class="hljs-type">float64</span> &#123;<br>	<span class="hljs-comment">// <span class="hljs-doctag">TODO:</span> Implement total area calculation</span><br>	<span class="hljs-keyword">var</span> total <span class="hljs-type">float64</span><br>	<span class="hljs-keyword">for</span> _, s := <span class="hljs-keyword">range</span> shapes&#123;<br>		total += s.Area()<br>	&#125;<br>	<span class="hljs-keyword">return</span> total<br>&#125;<br><br><span class="hljs-comment">// LargestShape finds the shape with the largest area</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(sc *ShapeCalculator)</span></span> LargestShape(shapes []Shape) Shape &#123;<br>	<span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(shapes) == <span class="hljs-number">0</span> &#123;<br>		<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span> <span class="hljs-comment">// 空切片返回 nil，调用者需处理</span><br>	&#125;<br>	largest := shapes[<span class="hljs-number">0</span>]<br>	<span class="hljs-keyword">for</span> _, s := <span class="hljs-keyword">range</span> shapes[<span class="hljs-number">1</span>:] &#123;<br>		<span class="hljs-keyword">if</span> s.Area() &gt; largest.Area() &#123;<br>			largest = s<br>		&#125;<br>	&#125;<br>	<span class="hljs-keyword">return</span> largest <span class="hljs-comment">// 返回的是指针（满足 Shape 接口）</span><br>&#125;<br><br><span class="hljs-comment">// SortByArea sorts shapes by area in ascending or descending order</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(sc *ShapeCalculator)</span></span> SortByArea(shapes []Shape, ascending <span class="hljs-type">bool</span>) []Shape &#123;<br>	<span class="hljs-comment">// <span class="hljs-doctag">TODO:</span> Implement sorting shapes by </span><br>	<span class="hljs-comment">// 拷贝切片，避免修改原切片（Shape 是接口类型，拷贝的是指针引用，不影响原数据）</span><br>	sorted := <span class="hljs-built_in">make</span>([]Shape, <span class="hljs-built_in">len</span>(shapes))<br>	<span class="hljs-built_in">copy</span>(sorted, shapes)<br><br>	<span class="hljs-comment">// 排序逻辑：指针接收者调用 Area()</span><br>	sort.Slice(sorted, <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(i, j <span class="hljs-type">int</span>)</span></span> <span class="hljs-type">bool</span> &#123;<br>		areaI := sorted[i].Area()<br>		areaJ := sorted[j].Area()<br>		<span class="hljs-keyword">if</span> ascending &#123;<br>			<span class="hljs-keyword">return</span> areaI &lt; areaJ<br>		&#125;<br>		<span class="hljs-keyword">return</span> areaI &gt; areaJ <br>	&#125;)<br><br>	<span class="hljs-keyword">return</span> sorted<br>&#125; <br></code></pre></td></tr></table></figure>
+
+<h2 id="对t-Triangle-a-b-c-的解析"><a href="#对t-Triangle-a-b-c-的解析" class="headerlink" title="对t := &amp;Triangle{a, b, c}的解析"></a>对<code>t := &amp;Triangle{a, b, c}</code>的解析</h2><p><code>&amp;</code> 是「取地址运算符」，作用于「值类型变量 &#x2F; 字面量」，返回该值的内存地址（指针类型）。这行代码等价于：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// 分步拆解（效果完全一致）</span><br>temp := Triangle&#123;a, b, c&#125; <span class="hljs-comment">// 先创建值类型变量 temp（类型：Triangle）</span><br>t := &amp;temp                 <span class="hljs-comment">// 取 temp 的地址，赋值给指针变量 t（类型：*Triangle）</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>内存分配</strong>：编译器会根据场景自动优化：如果 <code>t</code> 仅在函数内使用（短生命周期），则 <code>temp</code> 分配在<strong>栈上</strong>（高效）；如果 <code>t</code> 被返回（长生命周期，可能逃逸到函数外），则分配在<strong>堆上</strong>（由 GC 管理）。</li>
+</ul>
+<p><strong>错误写法：</strong><code>**&amp;t := Triangle{a, b, c}**</code></p>
+<ul>
+<li><strong>语法错误原因</strong>：Go 中变量声明的格式是 <code>变量名 := 表达式</code>，<code>变量名</code> 必须是「标识符」（如 <code>t</code>），而不能是「表达式」（如 <code>&amp;t</code>）。<code>&amp;t</code> 是「取变量 <code>t</code> 的地址」，本身是一个「指针表达式」，不能作为「变量名」使用 —— 就像不能写 <code>123 := 456</code> 一样，完全违反语法规则。</li>
+</ul>
+<p><strong>常见误区澄清</strong></p>
+<p><strong>误区 1：「取地址只能作用于变量，不能作用于字面量」？</strong></p>
+<ul>
+<li>错误！Go 允许直接对「结构体字面量」取地址（如 <code>&amp;Triangle{a, b, c}</code>），编译器会自动优化为「创建值 + 取地址」，无需手动声明中间变量。</li>
+</ul>
+<p><strong>误区 2：「指针变量必须用</strong> <code>**new()**</code> <strong>函数创建」？</strong></p>
+<ul>
+<li>错误！<code>new(T)</code> 是另一种创建指针的方式（如 <code>t := new(Triangle)</code>），但它会初始化结构体的「零值」（如 <code>SideA=0, SideB=0, SideC=0</code>），后续需要手动赋值。而 <code>&amp;Triangle{a, b, c}</code> 可以直接初始化字段，更灵活高效，是结构体指针创建的首选方式。</li>
+</ul>
+<p><strong>误区 3：「栈分配比堆分配好，必须手动控制」？</strong></p>
+<ul>
+<li>错误！Go 编译器的「逃逸分析」会自动优化内存分配：短生命周期的变量分配在栈上（无 GC 开销），长生命周期的变量分配在堆上（由 GC 管理）。开发者无需手动干预，只需关注「变量类型是否符合需求」（值 &#x2F; 指针）即可。</li>
+</ul>
+<h2 id="方法接收者的值类型和指针类型的区别"><a href="#方法接收者的值类型和指针类型的区别" class="headerlink" title="方法接收者的值类型和指针类型的区别"></a>方法接收者的值类型和指针类型的区别</h2><p>方法接收者是方法的「隐含参数」，用于绑定方法到具体类型。两种接收者的本质区别是：</p>
+<ul>
+<li><strong>值类型接收者</strong>：方法接收的是原对象的「副本」（值拷贝），方法内修改的是副本，不影响原对象。</li>
+<li><strong>指针类型接收者</strong>：方法接收的是原对象的「内存地址」（指针），方法内通过指针修改的是原对象本身。</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th><strong>对比维度</strong></th>
+<th><strong>值类型接收者</strong><strong>（</strong><code>**func (t Triangle) Area()**</code><strong>）</strong></th>
+<th><strong>指针类型接收者</strong><strong>（</strong><code>**func (t \*Triangle) Area()**</code><strong>）</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>修改原对象</strong></td>
+<td>不能：修改的是副本，原对象不变</td>
+<td>能：通过指针直接操作原对象</td>
+</tr>
+<tr>
+<td><strong>内存开销</strong></td>
+<td>大：每次调用方法都会拷贝整个结构体（结构体越大，开销越大）</td>
+<td>小：仅拷贝指针（8 字节 &#x2F; 64 位系统，与结构体大小无关）</td>
+</tr>
+<tr>
+<td><strong>接口实现</strong></td>
+<td>结构体「值」和「指针」都能实现接口（值接收者会自动适配指针）</td>
+<td>仅结构体「指针」能实现接口（值无法自动适配指针）</td>
+</tr>
+<tr>
+<td><strong>nil 接收者</strong></td>
+<td>不能接收 nil（值类型无法为 nil）</td>
+<td>可以接收 nil（指针类型允许为 nil，需手动处理避免 panic）</td>
+</tr>
+<tr>
+<td><strong>方法集</strong></td>
+<td>仅包含「值接收者方法」（值类型和指针类型都能调用）</td>
+<td>包含「指针接收者方法」+「值接收者方法」（指针类型能调用所有方法）</td>
+</tr>
+<tr>
+<td><strong>适用场景</strong></td>
+<td>结构体小、无修改需求（如纯计算：面积 &#x2F; 周长）</td>
+<td>结构体大、需修改原对象、实现接口（如你的项目）</td>
+</tr>
+</tbody></table>
+<p><strong>1. 修改原对象：指针接收者的核心优势</strong></p>
+<p>假设需要给 <code>Triangle</code> 加一个「修改边长」的方法，两种接收者的差异：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// 1. 值类型接收者：修改无效（仅修改副本）</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(t Triangle)</span></span> SetSideA(newA <span class="hljs-type">float64</span>) &#123;<br>    t.SideA = newA <span class="hljs-comment">// 修改的是副本的 SideA，原对象不变</span><br>&#125;<br><br><span class="hljs-comment">// 2. 指针类型接收者：修改有效（直接操作原对象）</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(t *Triangle)</span></span> SetSideA(newA <span class="hljs-type">float64</span>) &#123;<br>    t.SideA = newA <span class="hljs-comment">// 通过指针修改原对象的 SideA</span><br>&#125;<br><br><span class="hljs-comment">// 测试代码</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>    tri := &amp;Triangle&#123;<span class="hljs-number">3</span>,<span class="hljs-number">4</span>,<span class="hljs-number">5</span>&#125; <span class="hljs-comment">// 指针类型</span><br>    tri.SetSideA(<span class="hljs-number">10</span>)         <span class="hljs-comment">// 调用指针接收者方法</span><br>    fmt.Println(tri.SideA)   <span class="hljs-comment">// 输出 10（原对象已修改）</span><br><br>    tri2 := Triangle&#123;<span class="hljs-number">3</span>,<span class="hljs-number">4</span>,<span class="hljs-number">5</span>&#125;  <span class="hljs-comment">// 值类型</span><br>    tri2.SetSideA(<span class="hljs-number">10</span>)        <span class="hljs-comment">// 调用值接收者方法</span><br>    fmt.Println(tri2.SideA)  <span class="hljs-comment">// 输出 3（原对象未修改）</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>**2.**<strong>内存开销：指针接收者更高效（尤其结构体较大时）</strong></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// 大结构体（假设包含 1000 个顶点）</span><br><span class="hljs-keyword">type</span> Polygon <span class="hljs-keyword">struct</span> &#123;<br>    Vertices []<span class="hljs-type">float64</span> <span class="hljs-comment">// 8000 字节（1000 个 float64）</span><br>&#125;<br><br><span class="hljs-comment">// 值类型接收者：每次调用方法拷贝 8000 字节，开销巨大</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(p Polygon)</span></span> Perimeter() <span class="hljs-type">float64</span> &#123; <span class="hljs-comment">/* 计算逻辑 */</span> &#125;<br><br><span class="hljs-comment">// 指针类型接收者：仅拷贝 8 字节指针，开销忽略不计</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(p *Polygon)</span></span> Perimeter() <span class="hljs-type">float64</span> &#123; <span class="hljs-comment">/* 计算逻辑 */</span> &#125;<br></code></pre></td></tr></table></figure>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Go/" class="category-chain-item">Go</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Go-Interview-Practice/" class="print-no-link">#Go Interview Practice</a>
+      
+    </div>
+  
+</div>
+
+
+              
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2025/11/28/#13-%E8%BF%9B%E8%A1%8C%20SQL%20%E6%95%B0%E6%8D%AE%E5%BA%93%E6%93%8D%E4%BD%9C/" title="#13.进行 SQL 数据库操作">
+                        <span class="hidden-mobile">#13.进行 SQL 数据库操作</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       基于 <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a>、 <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
